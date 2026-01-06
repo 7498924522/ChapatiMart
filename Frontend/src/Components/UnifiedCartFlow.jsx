@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import {
   ShoppingCart,
   Trash,
@@ -8,13 +7,19 @@ import {
   CheckCircle,
   ArrowRight,
   Clock,
-  Phone,Loader,Truck,XCircle
+  Loader,
+  Truck,
+  XCircle,
+  RefreshCw,
+  Package,
+ PersonStanding
 } from 'lucide-react';
 
 export default function UnifiedCartFlow() {
   const [step, setStep] = useState(1);
   const [cart, setCart] = useState({});
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     phone: '',
@@ -42,43 +47,7 @@ export default function UnifiedCartFlow() {
     'F003': { name: 'Gram Flour', category: 'Flour', price: 15, mrp: 35 },
     'F004': { name: 'Toor Flour', category: 'Flour', price: 25, mrp: 30 }
   };
-  
 
-//   useEffect(() => {
-//   if (!customerInfo.email || orderHistory.length === 0) return;
-
-//   const fetchStatuses = async () => {
-//     try {
-//       const res = await axios.get('http://localhost:8080/api/orders/status', {
-//         params: { email: customerInfo.email }
-//       });
-
-//       // res.data = [{ orderNumber: "CM-MUM-2026-547", deliveryStatus: "out_for_delivery" }, ...]
-//       const updatedStatuses = res.data;
-
-//       setOrderHistory(prevOrders =>
-//         prevOrders.map(order => {
-//           const updated = updatedStatuses.find(o => o.orderNumber === order.orderNumber);
-//           if (!updated) return order;
-//           // Highlight status change
-//           if (order.status !== updated.deliveryStatus.toLowerCase()) {
-//             console.log(`Order ${order.orderNumber} status changed from ${order.status} to ${updated.deliveryStatus}`);
-//           }
-//           return { ...order, status: updated.deliveryStatus.toLowerCase() };
-//         })
-//       );
-//     } catch (err) {
-//       console.error("Failed to fetch delivery statuses:", err);
-//     }
-//   };
-
-//   fetchStatuses(); // fetch immediately
-//   const intervalId = setInterval(fetchStatuses, 5000); // fetch every 5s
-
-//   return () => clearInterval(intervalId); // cleanup on unmount
-// }, [customerInfo.email, orderHistory]);
-
-//   // Load cart & history from localStorage
   useEffect(() => {
     try {
       const rawCart = localStorage.getItem('chapatiCart');
@@ -96,6 +65,10 @@ export default function UnifiedCartFlow() {
       setCart({});
     }
 
+    loadLocalOrderHistory();
+  }, []);
+
+  const loadLocalOrderHistory = () => {
     try {
       const rawHistory = localStorage.getItem('orderHistory');
       if (rawHistory) {
@@ -112,9 +85,50 @@ export default function UnifiedCartFlow() {
       localStorage.removeItem('orderHistory');
       setOrderHistory([]);
     }
-  }, []);
+  };
 
-  // Cart calculations
+  const fetchOrderStatus = async (orderNumber) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/orders/status/${orderNumber}`);
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+      return data.deliveryStatus;
+    } catch (error) {
+      console.error(`Failed to fetch status for order ${orderNumber}:`, error);
+      return null;
+    }
+  };
+
+  const refreshAllOrderStatuses = async () => {
+    if (orderHistory.length === 0) return;
+    
+    setRefreshing(true);
+    try {
+      const updatedOrders = await Promise.all(
+        orderHistory.map(async (order) => {
+          const newStatus = await fetchOrderStatus(order.orderNumber);
+          if (newStatus) {
+            return { ...order, status: newStatus.toLowerCase() };
+          }
+          return order;
+        })
+      );
+      
+      setOrderHistory(updatedOrders);
+      localStorage.setItem('orderHistory', JSON.stringify(updatedOrders));
+    } catch (error) {
+      console.error('Error refreshing orders:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (step === 5 && orderHistory.length > 0) {
+      refreshAllOrderStatuses();
+    }
+  }, [step]);
+
   const cartItems = Object.entries(cart)
     .filter(([id, qty]) => qty > 0 && allPossibleItems[id])
     .map(([id, qty]) => ({
@@ -148,7 +162,7 @@ export default function UnifiedCartFlow() {
     setStep(2);
   };
 
-  const handleCustomerSubmit = e => {
+  const handleCustomerSubmit = (e) => {
     e.preventDefault();
     if (!customerInfo.name || !customerInfo.phone || !customerInfo.address || !customerInfo.city || !customerInfo.pincode) {
       alert('Please fill all required fields');
@@ -184,7 +198,13 @@ export default function UnifiedCartFlow() {
     };
 
     try {
-      await axios.post('http://localhost:8080/api/orders/place', orderPayload);
+      const response = await fetch('http://localhost:8080/api/orders/place', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderPayload)
+      });
+
+      if (!response.ok) throw new Error('Order failed');
 
       setOrderNumber(orderNum);
 
@@ -220,16 +240,59 @@ export default function UnifiedCartFlow() {
   const navigateToHome = () => window.location.href = "/home";
 
   const clearHistory = () => {
-  if (window.confirm("Clear all history?")) {
-    localStorage.removeItem("orderHistory");
-    setOrderHistory([]);
-  }
-};
+    if (window.confirm("Clear all history?")) {
+      localStorage.removeItem("orderHistory");
+      setOrderHistory([]);
+    }
+  };
 
+  const getStatusInfo = (status) => {
+    const statusLower = status?.toLowerCase() || 'pending';
+    
+    const statusMap = {
+      'pending': { 
+        color: 'bg-yellow-100 text-yellow-800 border-yellow-300', 
+        icon: Clock, 
+        label: 'PENDING',
+        description: 'Order received, waiting for confirmation'
+      },
+      'confirmed_preparing': { 
+        color: 'bg-blue-100 text-blue-800 border-blue-300', 
+        icon: Package, 
+        label: 'PREPARING',
+        description: 'Order confirmed and being prepared'
+      },
+      'ready': { 
+        color: 'bg-purple-100 text-purple-800 border-purple-300', 
+        icon: PersonStanding, 
+        label: 'READY',
+        description: 'Order is Ready'
+      },
+      'delivering': { 
+        color: 'bg-purple-100 text-purple-800 border-purple-300', 
+        icon: Truck, 
+        label: 'OUT FOR DELIVERY',
+        description: 'Order is On the Way'
+      },
+      'delivered': { 
+        color: 'bg-green-100 text-green-800 border-green-300', 
+        icon: CheckCircle, 
+        label: 'DELIVERED',
+        description: 'Order successfully delivered'
+      },
+      'cancelled': { 
+        color: 'bg-red-100 text-red-800 border-red-300', 
+        icon: XCircle, 
+        label: 'CANCELLED',
+        description: 'Order has been cancelled'
+      }
+    };
 
-  // Step rendering
+    return statusMap[statusLower] || statusMap['pending'];
+  };
+
   switch(step) {
-    case 1: // CART
+    case 1:
       return (
         <div className="min-h-screen bg-gray-50 py-8">
           <div className="max-w-4xl mx-auto px-4">
@@ -239,7 +302,7 @@ export default function UnifiedCartFlow() {
               </h1>
               {orderHistory.length > 0 && (
                 <button onClick={() => setStep(5)} className="flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold">
-                  <Clock size={20} /> View All History
+                  <Clock size={20} /> View Order History
                 </button>
               )}
             </div>
@@ -293,7 +356,7 @@ export default function UnifiedCartFlow() {
         </div>
       );
 
-    case 2: // CUSTOMER DETAILS
+    case 2:
       if(cartItems.length === 0) return (
         <div className="min-h-screen flex items-center justify-center">
           <p className="text-gray-500 text-xl">Your cart is empty. Go back to shopping.</p>
@@ -306,14 +369,14 @@ export default function UnifiedCartFlow() {
             <h1 className="text-3xl font-bold mb-6 flex items-center gap-3">
               <MapPin className="text-pink-600" /> Delivery Details
             </h1>
-            <form className="bg-white rounded-xl shadow-lg p-6 space-y-4" onSubmit={handleCustomerSubmit}>
+            <div className="bg-white rounded-xl shadow-lg p-6 space-y-4">
               <div><label className="block font-semibold mb-2">Full Name *</label>
               <input type="text" placeholder='Enter Full Name' value={customerInfo.name} onChange={e=>setCustomerInfo({...customerInfo,name:e.target.value})} required className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500" /></div>
               <div className="grid md:grid-cols-2 gap-4">
-                <div><label  className="block font-semibold mb-2">Phone *</label>
+                <div><label className="block font-semibold mb-2">Phone *</label>
                 <input type="tel" placeholder='Enter Phone Number' value={customerInfo.phone} onChange={e=>setCustomerInfo({...customerInfo,phone:e.target.value})} required className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500" /></div>
                 <div><label className="block font-semibold mb-2">Email</label>
-                <input type="email" placeholder='Enter Your E-mail ' value={customerInfo.email} onChange={e=>setCustomerInfo({...customerInfo,email:e.target.value})} className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500" /></div>
+                <input type="email" placeholder='Enter Your E-mail' value={customerInfo.email} onChange={e=>setCustomerInfo({...customerInfo,email:e.target.value})} className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500" /></div>
               </div>
               <div><label className="block font-semibold mb-2">Address *</label>
               <textarea value={customerInfo.address} placeholder='Address...' onChange={e=>setCustomerInfo({...customerInfo,address:e.target.value})} required className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500" rows={3}></textarea></div>
@@ -325,14 +388,14 @@ export default function UnifiedCartFlow() {
               </div>
               <div className="flex gap-3">
                 <button type="button" onClick={()=>setStep(1)} className="flex-1 border-2 border-gray-300 py-3 rounded-xl font-bold">Back to Cart</button>
-                <button type="submit" className="flex-1 bg-gradient-to-r from-pink-600 to-pink-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">Continue to Payment <ArrowRight /></button>
+                <button onClick={handleCustomerSubmit} className="flex-1 bg-gradient-to-r from-pink-600 to-pink-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">Continue to Payment <ArrowRight /></button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       );
 
-    case 3: // PAYMENT
+    case 3:
       return (
         <div className="min-h-screen bg-gray-50 py-8">
           <div className="max-w-2xl mx-auto px-4">
@@ -357,7 +420,7 @@ export default function UnifiedCartFlow() {
         </div>
       );
 
-    case 4: 
+    case 4:
       return (
         <div className="min-h-screen bg-gray-50 py-8">
           <div className="max-w-2xl mx-auto px-4 text-center">
@@ -369,93 +432,93 @@ export default function UnifiedCartFlow() {
         </div>
       );
 
- case 5: 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Clock className="text-pink-600" /> Order History
-          </h1>
-          <div className="flex gap-2">
-            <button 
-              onClick={clearHistory} 
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-            >
-              Clear History
-            </button>
-            <button 
-              onClick={() => setStep(1)} 
-              className="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700 transition"
-            >
-              Back to Cart
-            </button>
+    case 5:
+      return (
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-3xl font-bold flex items-center gap-3">
+                <Clock className="text-pink-600" /> Order History
+              </h1>
+              <div className="flex gap-2">
+                <button 
+                  onClick={refreshAllOrderStatuses} 
+                  disabled={refreshing}
+                  className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition disabled:opacity-50"
+                >
+                  <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+                  {refreshing ? 'Refreshing...' : 'Refresh Status'}
+                </button>
+                <button 
+                  onClick={clearHistory} 
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                >
+                  Clear History
+                </button>
+                <button 
+                  onClick={() => setStep(1)} 
+                  className="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700 transition"
+                >
+                  Back to Cart
+                </button>
+              </div>
+            </div>
+
+            {orderHistory.length === 0 ? (
+              <p className="text-gray-500 text-center py-12">No past orders found.</p>
+            ) : (
+              <div className="space-y-6">
+                {orderHistory.map(order => {
+                  const statusInfo = getStatusInfo(order.status);
+                  const StatusIcon = statusInfo.icon;
+
+                  return (
+                    <div key={order.orderNumber} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h2 className="font-bold text-lg">Order #{order.orderNumber}</h2>
+                          <span className="text-gray-500 text-sm">{order.date}</span>
+                        </div>
+                        
+                        <div className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 ${statusInfo.color}`}>
+                          <StatusIcon size={18} />
+                          <span className="font-semibold text-sm">{statusInfo.label}</span>
+                        </div>
+                      </div>
+                      <div className='flex justify-between'>
+                           <p className='font-semibold'>Order Status :-</p>
+                           <p className="text-sm text-gray-600 mb-4">{statusInfo.description}</p>
+                      </div>
+                      
+                      <div className="border-t pt-3 space-y-2 mb-3">
+                        {order.items.map(item => (
+                          <div key={item.id} className="flex justify-between text-sm hover:bg-gray-50 rounded px-2 py-1 transition">
+                            <span>{item.name} x {item.quantity}</span>
+                            <span>₹{item.price * item.quantity}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="border-t pt-3 space-y-1">
+                        <div className="flex justify-between text-sm"><span>Subtotal</span><span>₹{order.subtotal}</span></div>
+                        <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>- ₹{order.discount}</span></div>
+                        <div className="flex justify-between text-sm"><span>Delivery</span><span>{order.deliveryCharge===0?'FREE':`₹${order.deliveryCharge}`}</span></div>
+                        <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total</span><span>₹{order.total}</span></div>
+                      </div>
+
+                      {order.status !== 'delivered' && order.status !== 'cancelled' && (
+                        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                          💡 Your order status will update automatically when the admin processes it
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Empty state */}
-        {orderHistory.length === 0 ? (
-          <p className="text-gray-500 text-center py-12">No past orders found.</p>
-        ) : (
-          <div className="space-y-6">
-            {orderHistory.map(order => {
-              // Color coding for delivery status
-              let statusColor = "bg-gray-200 text-gray-800";
-              if(order.status === 'pending') statusColor = "bg-yellow-100 text-yellow-800";
-              else if(order.status === 'confirmed_preparing') statusColor = "bg-blue-100 text-blue-800";
-              else if(order.status === 'out_for_delivery') statusColor = "bg-purple-100 text-purple-800";
-              else if(order.status === 'delivered') statusColor = "bg-green-100 text-green-800";
-              else if(order.status === 'cancelled') statusColor = "bg-red-100 text-red-800";
-
-              return (
-                <div key={order.orderNumber} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition">
-                  {/* Header */}
-                  <div className="flex justify-between items-center mb-3">
-                    <h2 className="font-bold text-lg">Order #{order.orderNumber}</h2>
-                    <span className="text-gray-500 text-sm">{order.date}</span>
-                  </div>
-
-                  {/* Delivery Status */}
-                  <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-3 ${statusColor}`}>
-                    {order.status.replace('_', ' ').toUpperCase()}
-                  </div>
-
-                  {/* Items */}
-                  <div className="border-t pt-2 space-y-2 mb-3">
-                    {order.items.map(item => (
-                      <div key={item.id} className="flex justify-between text-sm hover:bg-gray-50 rounded px-2 py-1 transition">
-                        <span>{item.name} x {item.quantity}</span>
-                        <span>₹{item.price * item.quantity}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Totals */}
-                  <div className="border-t pt-2 space-y-1">
-                    <div className="flex justify-between text-sm"><span>Subtotal</span><span>₹{order.subtotal}</span></div>
-                    <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>- ₹{order.discount}</span></div>
-                    <div className="flex justify-between text-sm"><span>Delivery</span><span>{order.deliveryCharge===0?'FREE':`₹${order.deliveryCharge}`}</span></div>
-                    <div className="flex justify-between font-bold text-lg border-t pt-2"><span>Total</span><span>₹{order.total}</span></div>
-                  </div>
-
-                  {/* Optional: Reorder / Track button */}
-                  <div className="mt-4 flex justify-end gap-2">
-                    
-                    <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition text-sm">
-                      Track Order
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-
+      );
 
     default:
       return null;
