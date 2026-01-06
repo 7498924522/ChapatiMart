@@ -14,6 +14,7 @@ import {
   Package,
  PersonStanding
 } from 'lucide-react';
+import axios from 'axios';
 
 export default function UnifiedCartFlow() {
   const [step, setStep] = useState(1);
@@ -89,12 +90,12 @@ export default function UnifiedCartFlow() {
 
   const fetchOrderStatus = async (orderNumber) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/orders/status/${orderNumber}`);
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
-      return data.deliveryStatus;
+      const response = await axios.get(`http://localhost:8080/api/orders/status/${orderNumber}`);
+      // if (!response.ok) throw new Error('Failed to fetch');
+      // const data = await response.json();
+      return response.data.deliveryStatus;
     } catch (error) {
-      console.error(`Failed to fetch status for order ${orderNumber}:`, error);
+      console.error(`Failed to fetch status for order ${orderNumber}:`, error.response?.data|| error.message);
       return null;
     }
   };
@@ -197,14 +198,19 @@ export default function UnifiedCartFlow() {
       deliveryStatus: 'PENDING'
     };
 
-    try {
-      const response = await fetch('http://localhost:8080/api/orders/place', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderPayload)
-      });
+   try {
+  const response = await axios.post(
+    'http://localhost:8080/api/orders/place',
+    orderPayload, // Axios automatically stringifies JSON
+    {
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
 
-      if (!response.ok) throw new Error('Order failed');
+  // The saved order is in response.data
+  const savedOrder = response.data;
+  console.log('Order placed successfully:', savedOrder);
+
 
       setOrderNumber(orderNum);
 

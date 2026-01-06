@@ -136,14 +136,7 @@ export default function Chapati() {
         {/* Breadcrumb */}
         <p className="text-sm text-gray-500 mb-4 flex">
           Home &gt; Chapaties &gt; {mainItem.name}
-          {/* <p>
-            <select name="" id="" className="text-gray-500">
-            <option value="" selected>Wheat Chapati</option>
-             <option value="">Bhakari</option>
-             <option value="">Puranpoli</option>
-             <option value="">Rice Chapati</option>
-            </select>
-          </p> */}
+          
         </p>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -215,7 +208,9 @@ export default function Chapati() {
 
                     {cart[mainItem.id] > 0 && (
                       <button
+                      
                         onClick={() => deleteItem(mainItem.id)}
+                       
                         className="text-red-500 hover:text-red-700 flex items-center gap-1 ml-2"
                       >
                         <Trash size={16} />
