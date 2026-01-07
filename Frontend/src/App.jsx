@@ -15,6 +15,7 @@ import MainPage from './Components/MainPage';
 import SignUp from './Components/SignUp';
 import Login from './Components/Login';
 import AdminDashboard from './Components/Admin/AdminDashboard';
+import PhoneLogin from './Components/PhoneLogin';
 // import ProtectedRoute from './Components/ProtectedRoute';
 
 // import Practice from './Components/Practice'
@@ -30,8 +31,8 @@ return (
           <Route path='/admin' element={  <AdminDashboard/>}/>
         <Route path='/signup' element={  <SignUp/>}/>
          <Route path='/login' element={  <Login/>}/>
-        <Route path='/home' element={<Home/>}/>
-
+         <Route path='/phone_login' element={<PhoneLogin/>}/>
+         <Route path='/home' element={<Home/>}/>
         <Route path='/chapati' element={<Chapati/>}/>
         <Route path='/bhakari' element={<Bhakaries/>}/>
           <Route path='/puranpoli' element={<Puranpolies/>}/>

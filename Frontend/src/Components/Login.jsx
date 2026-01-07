@@ -55,7 +55,7 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
               {/* Username / Email */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Username or Email</label>
+                <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Username or Email or <a href='/Phone_login' className='text-orange-400 underline font-bold'>Phone Number</a></label>
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-600 transition-colors" size={18} />
                   <input 
@@ -92,6 +92,7 @@ export default function Login() {
                 </div>
               </div>
 
+             
               {/* Login Button */}
               <button 
                 type="submit"

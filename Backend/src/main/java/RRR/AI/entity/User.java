@@ -1,4 +1,8 @@
 package RRR.AI.entity;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -13,15 +17,31 @@ public class User {
 
     @Column(unique = true)
     private String email;
-
+    @JsonIgnore
     private String password;
+     private String phone;
+     @JsonIgnore
+    private String otp;
+    private boolean otpVerified;
+    private LocalDateTime expiryTime;
+    private int resendCount;
 
-    public User() {}
+   public User() {
+    this.otpVerified = false;
+    this.resendCount = 0;
+}
 
-    public User(String username, String email, String password) {
+
+    public User(String username, String email, String password,String phone,String otp,boolean otpVerified, LocalDateTime expiryTime,int resentCount) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.phone = phone;
+        this.otp= otp;
+        this.otpVerified= otpVerified;
+        this.expiryTime = expiryTime;
+        this.resendCount=resentCount;
+
     }
 
     // Getters and setters
@@ -52,4 +72,45 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+     public String getOtp() {
+        return otp;
+    }
+
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
+    public boolean isOtpVerified() {
+    return otpVerified;
+}
+
+public void setOtpVerified(boolean otpVerified) {
+    this.otpVerified = otpVerified;
+}
+
+
+    public LocalDateTime getExpiryTime() {
+        return expiryTime;
+    }
+
+    public void setExpiryTime(LocalDateTime expiryDateTime) {
+        this.expiryTime = expiryDateTime;
+    }
+
+    public int getResendCount() {
+        return resendCount;
+    }
+
+    public void setResendCount(int resendCount) {
+        this.resendCount = resendCount;
+    }
+
+    
 }
