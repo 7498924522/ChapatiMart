@@ -1,7 +1,7 @@
 package RRR.AI.entity;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+// import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 
@@ -17,10 +17,10 @@ public class User {
 
     @Column(unique = true)
     private String email;
-    @JsonIgnore
+ 
     private String password;
      private String phone;
-     @JsonIgnore
+  
     private String otp;
     private boolean otpVerified;
     private LocalDateTime expiryTime;
@@ -29,6 +29,12 @@ public class User {
    public User() {
     this.otpVerified = false;
     this.resendCount = 0;
+}
+    
+public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
 }
 
 

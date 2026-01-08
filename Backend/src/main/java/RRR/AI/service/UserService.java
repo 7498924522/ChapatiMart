@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,12 +48,17 @@ public class UserService {
         return passwordEncoder.matches(password, user.getPassword());
     }
     
-    private static final String TWILIO_ACCOUNT_SID = "ACf56a4d039b783ddbb9123338315df174";
-    private static final String TWILIO_AUTH_TOKEN = "ceb144639f234414859c39b9ba8466b4";
-    private static final String TWILIO_PHONE_NUMBER = "+17754023318"; // Your Twilio phone number
+   @Value("${twilio.account.sid}")
+private String twilioSid;
+
+@Value("${twilio.auth.token}")
+private String twilioAuthToken;
+
+@Value("${twilio.phone.number}")
+private String twilioPhoneNumber;
 
     public UserService() {
-        Twilio.init(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+        Twilio.init(twilioSid, twilioAuthToken);
     }
 
     
@@ -64,7 +69,7 @@ public class UserService {
         String messageBody = "Your OTP is: " + otp;
         Message.creator(
                 new PhoneNumber(phone),
-                new PhoneNumber(TWILIO_PHONE_NUMBER),
+                new PhoneNumber(twilioPhoneNumber),
                 messageBody
         ).create();
     }
