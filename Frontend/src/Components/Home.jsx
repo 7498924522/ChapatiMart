@@ -5,7 +5,6 @@ import Header from "./Header";
 import chapati from "../assets/ch.jpg";
 import H from "../assets/Harabhara.jpg";
 import Puranpoli from "../assets/puran.jpg";
-import bottel from "../assets/Bottel.jpg";
 import flour from "../assets/F.jpg";
 import Gahu from "../assets/w.jpg";
 import Bhakari from "../assets/BB.jpg";
@@ -189,7 +188,7 @@ export default function Home() {
         <p className="mt-3 text-green-100">Simple • Fast • Hygienic</p>
         <button
           onClick={ () => document.getElementById('products').scrollIntoView({ behavior: 'smooth' })}
-          className="mt-6 bg-white text-green-700 px-8 py-3 rounded-xl font-semibold hover:scale-105 transition"
+          className="mt-6 cursor-pointer bg-white text-green-700 px-8 py-3 rounded-xl font-semibold hover:scale-105 transition"
         >
           Start Ordering
         </button>

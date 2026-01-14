@@ -76,61 +76,75 @@ export default function PhoneLogin() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-lg">
-      {step === 1 && (
-        <>
-          <h2 className="text-xl font-bold mb-4">Login with Phone</h2>
-          <input
-            type="tel"
-            placeholder="Phone number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="border w-full p-2 mb-4 rounded"
-          />
-          <button
-            onClick={sendOtp}
-            disabled={loading}
-            className="bg-pink-600 text-white w-full p-2 rounded hover:bg-pink-700 transition"
-          >
-            {loading ? "Sending OTP..." : "Send OTP"}
-          </button>
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-        </>
-      )}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-yellow-50 to-yellow-100 p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 animate-fadeIn">
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-md">
+            🍞
+          </div>
+          <h1 className="text-2xl font-bold mt-4 text-gray-800">
+            ChapatiMart Login
+          </h1>
+          <p className="text-gray-500 mt-1 text-center">
+            Login quickly using your phone number
+          </p>
+        </div>
 
-      {step === 2 && (
-        <>
-          <h2 className="text-xl font-bold mb-4">Enter OTP</h2>
-          <input
-            type="text"
-            placeholder="Enter OTP"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            className="border w-full p-2 mb-4 rounded"
-          />
-          <button
-            onClick={verifyOtp}
-            disabled={loading}
-            className="bg-green-600 text-white w-full p-2 rounded hover:bg-green-700 transition"
-          >
-            {loading ? "Verifying..." : "Verify OTP"}
-          </button>
-
-          {timer === 0 ? (
+        {step === 1 && (
+          <>
+            <input
+              type="tel"
+              placeholder="Phone number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="border border-gray-300 focus:ring-2 focus:ring-green-400 focus:outline-none rounded-xl w-full p-3 mb-4 shadow-sm transition"
+            />
             <button
-              onClick={resendOtp}
+              onClick={sendOtp}
               disabled={loading}
-              className="text-blue-600 mt-3 underline"
+              className="bg-green-500 text-white w-full p-3 rounded-xl font-semibold hover:bg-green-600 transition duration-200 shadow-md"
             >
-              Resend OTP
+              {loading ? "Sending OTP..." : "Send OTP"}
             </button>
-          ) : (
-            <p className="text-gray-500 mt-3">Resend in {timer}s</p>
-          )}
+            {error && <p className="text-red-500 mt-3 text-center">{error}</p>}
+          </>
+        )}
 
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-        </>
-      )}
+        {step === 2 && (
+          <>
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="border border-gray-300 focus:ring-2 focus:ring-green-600 focus:outline-none rounded-xl w-full p-3 mb-4 shadow-sm transition"
+            />
+            <button
+              onClick={verifyOtp}
+              disabled={loading}
+              className="bg-green-500 text-white w-full p-3 rounded-xl font-semibold hover:bg-green-600 transition duration-200 shadow-md"
+            >
+              {loading ? "Verifying..." : "Verify OTP"}
+            </button>
+
+            {timer === 0 ? (
+              <button
+                onClick={resendOtp}
+                disabled={loading}
+                className="text-yellow-500 mt-4 underline font-medium"
+              >
+                Resend OTP
+              </button>
+            ) : (
+              <p className="text-gray-500 mt-4 text-center">
+                Resend in {timer}s
+              </p>
+            )}
+
+            {error && <p className="text-red-500 mt-3 text-center">{error}</p>}
+          </>
+        )}
+      </div>
     </div>
   );
 }

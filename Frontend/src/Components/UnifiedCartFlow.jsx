@@ -91,8 +91,7 @@ export default function UnifiedCartFlow() {
   const fetchOrderStatus = async (orderNumber) => {
     try {
       const response = await axios.get(`http://localhost:8080/api/orders/status/${orderNumber}`);
-      // if (!response.ok) throw new Error('Failed to fetch');
-      // const data = await response.json();
+      
       return response.data.deliveryStatus;
     } catch (error) {
       console.error(`Failed to fetch status for order ${orderNumber}:`, error.response?.data|| error.message);

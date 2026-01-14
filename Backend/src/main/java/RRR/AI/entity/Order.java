@@ -18,6 +18,9 @@ public class Order {
     private double total;
     private String deliveryStatus;
     private LocalDateTime orderDate = LocalDateTime.now();
+    private String deliveryBoyPhone;
+    private LocalDateTime assignedAt;
+  
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
@@ -47,11 +50,20 @@ public class Order {
     public double getTotal() { return total; }
     public void setTotal(double total) { this.total = total; }
 
+    public String getDeliveryBoyPhone() { return deliveryBoyPhone; }
+    public void setDeliveryBoyPhone(String deliveryBoyPhone) { this.deliveryBoyPhone = deliveryBoyPhone; }
+
+    public LocalDateTime getOrderAssigned() { return assignedAt; }
+    public void setAssignedAt(LocalDateTime assignedAt) { this.assignedAt = assignedAt; }
+
     public String getDeliveryStatus() { return deliveryStatus; }
     public void setDeliveryStatus(String deliveryStatus) { this.deliveryStatus = deliveryStatus; }
 
     public LocalDateTime getOrderDate() { return orderDate; }
     public void setOrderDate(LocalDateTime orderDate) { this.orderDate = orderDate; }
+
+   
+   
 
     public Customer getCustomer() { return customer; }
     public void setCustomer(Customer customer) { this.customer = customer; }

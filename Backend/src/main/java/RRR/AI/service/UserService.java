@@ -2,6 +2,8 @@ package RRR.AI.service;
 
 import RRR.AI.entity.User;
 import RRR.AI.repository.UserRepository;
+// import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import java.time.LocalDateTime;
 
@@ -9,7 +11,7 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,38 +28,17 @@ public class UserService {
 
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    // SIGNUP
-    public User registerUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
-    }
 
-    // LOGIN WITH EMAIL OR USERNAME
-    public boolean login(String emailOrUsername, String password) {
-        User user;
+private final String twilioSid ="ACf56a4d039b783ddbb9123338315df174";
+    private final String twilioAuthToken = "763c3c35de3bb481f1c803b0b09642bb";
+    private final String twilioPhoneNumber = "+17754023318";
 
-        // Check if user entered an email
-        if (emailOrUsername.contains("@")) {
-            user = userRepository.findByEmail(emailOrUsername);
-        } else {
-            user = userRepository.findByUsername(emailOrUsername);
-        }
 
-        if (user == null) return false;
 
-        return passwordEncoder.matches(password, user.getPassword());
-    }
     
-   @Value("${twilio.account.sid}")
-private String twilioSid;
-
-@Value("${twilio.auth.token}")
-private String twilioAuthToken;
-
-@Value("${twilio.phone.number}")
-private String twilioPhoneNumber;
-
-    public UserService() {
+    
+    @PostConstruct 
+    public void UserService() {
         Twilio.init(twilioSid, twilioAuthToken);
     }
 
@@ -83,7 +64,7 @@ private String twilioPhoneNumber;
         User user = userRepository.findByPhone(phone)
                 .orElse(new User());
 
-        if (user.getResendCount() >= 5) {
+        if (user.getResendCount() >= 10) {
             throw new RuntimeException("OTP resend limit exceeded");
         }
 
@@ -121,6 +102,28 @@ private String twilioPhoneNumber;
     return userRepository.findByPhone(phone)
             .orElseThrow(() -> new RuntimeException("User not found"));
 }
+
+// SIGNUP
+    public User registerUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
+    // LOGIN WITH EMAIL OR USERNAME
+    public boolean login(String emailOrUsername, String password) {
+        User user;
+
+        // Check if user entered an email
+        if (emailOrUsername.contains("@")) {
+            user = userRepository.findByEmail(emailOrUsername);
+        } else {
+            user = userRepository.findByUsername(emailOrUsername);
+        }
+
+        if (user == null) return false;
+
+        return passwordEncoder.matches(password, user.getPassword());
+    }
 
    
 }

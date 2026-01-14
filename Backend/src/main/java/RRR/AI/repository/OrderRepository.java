@@ -9,4 +9,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     
    List<Order> findByDeliveryStatus(String deliveryStatus);
 
+   List<Order> findByDeliveryBoyPhone(String phone);
+
 }

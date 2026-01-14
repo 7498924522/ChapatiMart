@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, User, ShoppingCart, LogOut, Menu, X } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
+
 function Header() {
   const [cartCount, setCartCount] = useState(0);
   const [email, setEmail] = useState("user@example.com");
