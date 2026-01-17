@@ -12,7 +12,8 @@ import {
   XCircle,
   RefreshCw,
   Package,
- PersonStanding
+ PersonStanding,
+ Handshake
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -272,6 +273,12 @@ export default function UnifiedCartFlow() {
         icon: PersonStanding, 
         label: 'READY',
         description: 'Order is Ready'
+      },
+      'assigned': { 
+        color: 'bg-purple-100 text-purple-800 border-purple-300', 
+        icon: Handshake, 
+        label: 'ASSIGNED',
+        description: 'Order Assigned To The Delivery_Boy'
       },
       'delivering': { 
         color: 'bg-purple-100 text-purple-800 border-purple-300', 

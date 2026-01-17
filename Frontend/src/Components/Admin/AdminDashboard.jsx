@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Package, Truck, DollarSign, Users, Clock, CheckCircle, 
   XCircle, Eye, Phone, MapPin, AlertCircle, ChefHat, CreditCard, TrendingUp,
-  ShoppingCart, Edit, Trash2, Plus, Search, UserPlus
+  ShoppingCart, Edit, Trash2, Plus, Search, UserPlus,Handshake
 } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -89,6 +89,7 @@ export default function AdminDashboard() {
         deliveryBoyPhone: selectedBoy
       });
       alert("Order Assigned Successfully 🚴");
+       updateOrderStatus(assigningOrder.id, 'assigned');
       setShowAssignModal(false);
       setAssigningOrder(null);
       setSelectedBoy("");
@@ -115,7 +116,7 @@ export default function AdminDashboard() {
       await axios.post("http://localhost:8080/admin/delivery-boy", {
         ...deliveryForm,
         // deliveryBoy: true,
-        active:true
+        active:"offline"
       });
       alert("Delivery Boy Created Successfully ✅");
       setShowDeliveryModal(false);
@@ -272,7 +273,7 @@ export default function AdminDashboard() {
                         )}
                         {order.status === 'ready' && (
                           <button 
-                            onClick={() => { setAssigningOrder(order); setShowAssignModal(true);  updateOrderStatus(order.id, 'assigned') }} 
+                            onClick={() => { setAssigningOrder(order); setShowAssignModal(true); }} 
                             className="flex-1 bg-orange-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-orange-700"
                           >
                             <Truck size={20}/> Assign Delivery Boy
@@ -286,13 +287,26 @@ export default function AdminDashboard() {
                         {order.status === 'delivering' && (
                           <button className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">Delivering,,,</button>
                         )}
-                        {(order.status === 'cancelled') && (
+                        {(order.status === "delivered") && (
                            <div className="flex-1 text-center py-3 bg-gray-100 rounded-xl font-bold text-gray-500 border italic">Order Closed</div>
                         )}
+
+                         {(order.status === "cancelled") && (
+                           <div className="flex-1 text-center py-3 bg-gradient-to-r from-red-100 px-5 to-red-200 text-red-800 border font-bold italic">Order Cancelled</div>
+                        )}
+
+                        {order.status === 'PENDING' && (
+                    <div className=" bg-gradient-to-r from-red-100 px-5 to-red-200 text-red-800 py-4 rounded-xl font-bold flex items-center justify-center gap-2 border-2 border-red-300">
+                      <XCircle onClick={()=> updateOrderStatus(order.id, 'cancelled')} className="w-5 h-5" />
+                     
+                    </div>
+                  )}
                       </div>
+                       
                     </div>
                   );
                 })}
+                 
               </div>
             </div>
           )}

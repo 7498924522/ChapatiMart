@@ -1,32 +1,37 @@
-package RRR.AI.service;
+// package RRR.AI.service;
 
-import RRR.AI.entity.User;
-import RRR.AI.repository.UserRepository;
+// import RRR.AI.entity.User;
+// import RRR.AI.repository.UserRepository;
+// // import jakarta.annotation.PostConstruct;
 // import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PostConstruct;
 
-import java.time.LocalDateTime;
+// import java.time.LocalDateTime;
 
-import java.util.Optional;
-import java.util.Random;
+// import java.util.Optional;
+// import java.util.Random;
 
-import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
+// import org.springframework.beans.factory.annotation.Autowired;
+// // import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+// import org.springframework.stereotype.Service;
 
 
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
+// import com.twilio.Twilio;
+// import com.twilio.rest.api.v2010.account.Message;
+// import com.twilio.type.PhoneNumber;
 
-@Service
-public class UserService {
+// @Service
+// public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+//     @Autowired
+//     private UserRepository userRepository;
 
-    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
+// private final String twilioSid ="ACf56a4d039b783ddbb9123338315df174";
+//     private final String twilioAuthToken = "763c3c35de3bb481f1c803b0b09642bb";
+//     private final String twilioPhoneNumber = "+17754023318";
 
 
 
@@ -98,27 +103,27 @@ public class UserService {
 //             .orElseThrow(() -> new RuntimeException("User not found"));
 // }
 
-// SIGNUP
-    public User registerUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
-    }
+// // SIGNUP
+//     public User registerUser(User user) {
+//         user.setPassword(passwordEncoder.encode(user.getPassword()));
+//         return userRepository.save(user);
+//     }
 
-    // LOGIN WITH EMAIL OR USERNAME
-    public boolean login(String emailOrUsername, String password) {
-        User user;
+//     // LOGIN WITH EMAIL OR USERNAME
+//     public boolean login(String emailOrUsername, String password) {
+//         User user;
 
-        // Check if user entered an email
-        if (emailOrUsername.contains("@")) {
-            user = userRepository.findByEmail(emailOrUsername);
-        } else {
-            user = userRepository.findByUsername(emailOrUsername);
-        }
+//         // Check if user entered an email
+//         if (emailOrUsername.contains("@")) {
+//             user = userRepository.findByEmail(emailOrUsername);
+//         } else {
+//             user = userRepository.findByUsername(emailOrUsername);
+//         }
 
-        if (user == null) return false;
+//         if (user == null) return false;
 
-        return passwordEncoder.matches(password, user.getPassword());
-    }
+//         return passwordEncoder.matches(password, user.getPassword());
+//     }
 
    
-}
+// }
