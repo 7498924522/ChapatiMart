@@ -17,7 +17,7 @@ import Login from './Components/Login';
 import AdminDashboard from './Components/Admin/AdminDashboard';
 import PhoneLogin from './Components/PhoneLogin';
 import DeliveryDashboard from './Components/Delivery/DeliveryDashboard';
-import AddDeliveryBoy from './Components/Admin/AddDeliveryBoy';
+// import AddDeliveryBoy from './Components/Admin/AddDeliveryBoy';
 import DeliveryBoysList from './Components/Admin/DeliveryBoysList';
 import DeliveryBoyLogin from './Components/Delivery/DeliveryBoyLogin';
 
@@ -49,7 +49,7 @@ return (
           <Route path="/home" element={ <Home/>}/>
          <Route path="/delivery" element={ <DeliveryDashboard/>}/>
          <Route path="/delivery_Login" element={ <DeliveryBoyLogin/>}/>
-         <Route path="/AdminDeliveryBoyForm" element={ <AddDeliveryBoy/>}/>
+         {/* <Route path="/AdminDeliveryBoyForm" element={ <AddDeliveryBoy/>}/> */}
           <Route path="/deliveryB_list" element={ <DeliveryBoysList/>}/>
         
         

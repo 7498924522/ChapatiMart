@@ -19,6 +19,9 @@ public class DeliveryBoyOrderDTO {
 
     private List<OrderItemDTO> items;
 
+    public DeliveryBoyOrderDTO()
+    {}
+
     // Constructor
     public DeliveryBoyOrderDTO(String orderNumber, String status, double deliveryCharge,
                                String paymentMethod, Double total, String orderDate,

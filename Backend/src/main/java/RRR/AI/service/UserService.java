@@ -29,79 +29,74 @@ public class UserService {
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-private final String twilioSid ="ACf56a4d039b783ddbb9123338315df174";
-    private final String twilioAuthToken = "763c3c35de3bb481f1c803b0b09642bb";
-    private final String twilioPhoneNumber = "+17754023318";
-
-
 
     
     
-    @PostConstruct 
-    public void UserService() {
-        Twilio.init(twilioSid, twilioAuthToken);
-    }
+//     @PostConstruct 
+//     public void UserService() {
+//         Twilio.init(twilioSid, twilioAuthToken);
+//     }
 
     
-    /* =========================
-       SEND OTP SMS
-    ========================= */
-    private void sendOtpSms(String phone, String otp) {
-        String messageBody = "Your OTP is: " + otp;
-        Message.creator(
-                new PhoneNumber(phone),
-                new PhoneNumber(twilioPhoneNumber),
-                messageBody
-        ).create();
-    }
+//     /* =========================
+//        SEND OTP SMS
+//     ========================= */
+//     private void sendOtpSms(String phone, String otp) {
+//         String messageBody = "Your OTP is: " + otp;
+//         Message.creator(
+//                 new PhoneNumber(phone),
+//                 new PhoneNumber(twilioPhoneNumber),
+//                 messageBody
+//         ).create();
+//     }
 
-    /* =========================
-       SEND / RESEND OTP
-    ========================= */
-    public void sendOrResendOtp(String phone) {
-        String otp = String.valueOf(100000 + new Random().nextInt(900000));
+//     /* =========================
+//        SEND / RESEND OTP
+//     ========================= */
+//     public void sendOrResendOtp(String phone) {
+//         String otp = String.valueOf(100000 + new Random().nextInt(900000));
 
-        User user = userRepository.findByPhone(phone)
-                .orElse(new User());
+//         User user = userRepository.findByPhone(phone)
+//                 .orElse(new User());
 
-        if (user.getResendCount() >= 10) {
-            throw new RuntimeException("OTP resend limit exceeded");
-        }
+//         if (user.getResendCount() >= 10) {
+//             throw new RuntimeException("OTP resend limit exceeded");
+//         }
 
-        user.setPhone(phone);
-        user.setOtp(otp);
-        user.setExpiryTime(LocalDateTime.now().plusMinutes(5));
-        user.setResendCount(user.getResendCount() + 1);
-        user.setOtpVerified(false);
+//         user.setPhone(phone);
+//         user.setOtp(otp);
+//         user.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+//         user.setResendCount(user.getResendCount() + 1);
+//         user.setOtpVerified(false);
 
-        userRepository.save(user);
+//         userRepository.save(user);
 
-        sendOtpSms(phone, otp);
-    }
+//         sendOtpSms(phone, otp);
+//     }
 
-    /* =========================
-       VERIFY OTP
-    ========================= */
-    public boolean verifyOtp(String phone, String otp) {
-        Optional<User> optionalUser = userRepository.findByPhone(phone);
-        if (optionalUser.isEmpty()) return false;
+//     /* =========================
+//        VERIFY OTP
+//     ========================= */
+//     public boolean verifyOtp(String phone, String otp) {
+//         Optional<User> optionalUser = userRepository.findByPhone(phone);
+//         if (optionalUser.isEmpty()) return false;
 
-        User user = optionalUser.get();
-        if (user.getExpiryTime().isBefore(LocalDateTime.now())) return false;
-        if (!user.getOtp().equals(otp)) return false;
+//         User user = optionalUser.get();
+//         if (user.getExpiryTime().isBefore(LocalDateTime.now())) return false;
+//         if (!user.getOtp().equals(otp)) return false;
 
-        user.setOtpVerified(true);
-        user.setOtp(null);
-        user.setExpiryTime(null);
-        user.setResendCount(0);
+//         user.setOtpVerified(true);
+//         user.setOtp(null);
+//         user.setExpiryTime(null);
+//         user.setResendCount(0);
 
-        userRepository.save(user);
-        return true;
-    }
-    public User getUserByPhone(String phone) {
-    return userRepository.findByPhone(phone)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-}
+//         userRepository.save(user);
+//         return true;
+//     }
+//     public User getUserByPhone(String phone) {
+//     return userRepository.findByPhone(phone)
+//             .orElseThrow(() -> new RuntimeException("User not found"));
+// }
 
 // SIGNUP
     public User registerUser(User user) {

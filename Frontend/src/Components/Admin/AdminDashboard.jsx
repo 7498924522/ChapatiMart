@@ -13,7 +13,7 @@ export default function AdminDashboard() {
   
   // Delivery States
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false); // Modal for picking a boy
+  const [showAssignModal, setShowAssignModal] = useState(false); // Pop Up for the assign boy
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [assigningOrder, setAssigningOrder] = useState(null); // The order currently being assigned
   const [selectedBoy, setSelectedBoy] = useState("");
@@ -36,6 +36,9 @@ export default function AdminDashboard() {
     fetchDeliveryBoys();
   }, []);
 
+
+  //All Delivery Boys Which We Have Created For The Assigned Orders To  Active Boys. 
+  // Important Thing Is We can See There Status Like Online Or Offline
   const fetchDeliveryBoys = async () => {
     try {
       const res = await axios.get("http://localhost:8080/admin/delivery-boys");
@@ -44,7 +47,8 @@ export default function AdminDashboard() {
       console.error("Failed to fetch delivery boys", err);
     }
   };
-
+ 
+  //Here The Admin Able To Access The All Customer Orders With The Proper Data
   const fetchOrders = async () => {
     try {
       const res = await axios.get("http://localhost:8080/api/admin/orders");
@@ -71,12 +75,13 @@ export default function AdminDashboard() {
     }
   };
 
-  // Function to actually call the assignment API
+  // With The Help Of OrderNumber We Assigned Delivery Boy Number
   const handleAssignSubmit = async () => {
-    if (!selectedBoy || selectedBoy=="offline") {
+    if (!selectedBoy) {
         alert("Please select a delivery boy!");
         return;
     }
+  
     
     try {
       await axios.put("http://localhost:8080/api/assign-order", {
@@ -92,7 +97,8 @@ export default function AdminDashboard() {
       alert("Failed to assign order. Please try again.");
     }
   };
-
+  
+  //Here Admin Have The Access To Update The Order Status From Pending To Accept&Preparing ,Ready And Assigned.
   const updateOrderStatus = async (orderNumber, newStatus) => {
     try {
       await axios.put(`http://localhost:8080/api/${orderNumber}/status`, { status: newStatus });
@@ -102,12 +108,14 @@ export default function AdminDashboard() {
     }
   };
 
+
+  //Account Of Delivery Boy 
   const createDeliveryBoy = async () => {
     try {
       await axios.post("http://localhost:8080/admin/delivery-boy", {
         ...deliveryForm,
-        deliveryBoy: true,
-        active: true
+        // deliveryBoy: true,
+        active:true
       });
       alert("Delivery Boy Created Successfully ✅");
       setShowDeliveryModal(false);
@@ -228,6 +236,11 @@ export default function AdminDashboard() {
                           <p className="font-bold">{order.customerName}</p>
                           <p className="text-sm text-gray-600">{order.phone}</p>
                           <p className="text-sm mt-2 flex gap-1"><MapPin size={14}/> {order.address}</p>
+
+                          <div className="pt-2 mt-2 border-t border-blue-200">
+                          <p className="text-xs text-gray-600 mb-1 font-medium">Delivery Charge</p>
+                          <p className="font-semibold text-gray-900">₹{order.DeliveryCharge}</p>
+                        </div>
                         </div>
 
                         <div className="bg-orange-50 p-4 rounded-2xl">
@@ -238,6 +251,14 @@ export default function AdminDashboard() {
                               <span className="font-bold">₹{item.price * item.qty}</span>
                             </div>
                           ))}
+
+                           <div className="bg-gradient-to-r my-5 from-purple-50 to-purple-100/50 p-4 rounded-2xl">
+                      <h3 className="text-sm  font-semibold text-purple-900 mb-2 uppercase tracking-wide flex items-center gap-2">
+                        <CreditCard className="w-4 h-4" />
+                        Payment Method
+                      </h3>
+                      <p className="font-semibold text-gray-900">{order.paymentMethod}</p>
+                    </div>
                         </div>
                       </div>
 
@@ -251,16 +272,21 @@ export default function AdminDashboard() {
                         )}
                         {order.status === 'ready' && (
                           <button 
-                            onClick={() => { setAssigningOrder(order); setShowAssignModal(true); }} 
+                            onClick={() => { setAssigningOrder(order); setShowAssignModal(true);  updateOrderStatus(order.id, 'assigned') }} 
                             className="flex-1 bg-orange-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-orange-700"
                           >
                             <Truck size={20}/> Assign Delivery Boy
                           </button>
                         )}
-                        {order.status === 'delivering' && (
-                          <button onClick={() => updateOrderStatus(order.id, 'delivered')} className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">Mark as Delivered</button>
+                        {order.status === 'assigned' && (
+                          <button onClick={() => updateOrderStatus(order.id, 'assigned')} className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700"><i>Order Assigned</i></button>
                         )}
-                        {(order.status === 'delivered' || order.status === 'cancelled') && (
+
+
+                        {order.status === 'delivering' && (
+                          <button className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">Delivering,,,</button>
+                        )}
+                        {(order.status === 'cancelled') && (
                            <div className="flex-1 text-center py-3 bg-gray-100 rounded-xl font-bold text-gray-500 border italic">Order Closed</div>
                         )}
                       </div>
@@ -271,13 +297,119 @@ export default function AdminDashboard() {
             </div>
           )}
           {/* Inventory and Analytics remain the same as your source */}
+
+           {activeTab === 'inventory' && (
+            <div className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-bold">Inventory Management</h2>
+                <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2">
+                  <Plus size={18} />
+                  Add Product
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-gray-50">
+                      <th className="text-left py-3 px-4 font-semibold">Product</th>
+                      <th className="text-left py-3 px-4 font-semibold">Stock</th>
+                      <th className="text-left py-3 px-4 font-semibold">Price</th>
+                      <th className="text-left py-3 px-4 font-semibold">Sold Today</th>
+                      <th className="text-left py-3 px-4 font-semibold">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {inventory.map((item) => (
+                      <tr key={item.id} className="border-b hover:bg-gray-50">
+                        <td className="py-4 px-4 font-medium">{item.name}</td>
+                        <td className="py-4 px-4">
+                          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                            item.stock > 100 ? 'bg-green-100 text-green-700' :
+                            item.stock > 50 ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {item.stock} units
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 font-semibold">₹{item.price}</td>
+                        <td className="py-4 px-4 text-gray-600">{item.sold} units</td>
+                        <td className="py-4 px-4">
+                          <div className="flex gap-2">
+                            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition">
+                              <Edit size={18} />
+                            </button>
+                            <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+  {activeTab === 'analytics' && (
+            <div className="p-6">
+              <h2 className="text-xl font-bold mb-6">Sales Analytics</h2>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="border rounded-xl p-6">
+                  <h3 className="font-semibold mb-4 flex items-center gap-2">
+                    <TrendingUp size={20} className="text-green-600" />
+                    Top Selling Products
+                  </h3>
+                  <div className="space-y-3">
+                    {inventory.sort((a, b) => b.sold - a.sold).map((item, idx) => (
+                      <div key={item.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl font-bold text-gray-300">#{idx + 1}</span>
+                          <span className="font-medium">{item.name}</span>
+                        </div>
+                        <span className="text-green-700 font-bold">{item.sold} sold</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border rounded-xl p-6">
+                  <h3 className="font-semibold mb-4">Weekly Revenue Trend</h3>
+                  <div className="space-y-2">
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
+                      const revenue = Math.floor(Math.random() * 5000) + 2000;
+                      const percentage = (revenue / 7000) * 100;
+                      return (
+                        <div key={day}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="font-medium">{day}</span>
+                            <span className="text-green-700 font-bold">₹{revenue}</span>
+                          </div>
+                          <div className="bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-green-600 h-2 rounded-full transition-all"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+      
+      
 
-      {/* ================= MODAL: ASSIGN DELIVERY BOY ================= */}
+      {/* ================= MODAL: ASSIGN DELIVERY BOY. When The Admin Update The ready status ================= */}
       {showAssignModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
+          <div className="bg-white w-full md:mx-10 rounded-2xl p-6 shadow-2xl">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-orange-600">
                 <Truck /> Assign Order #{assigningOrder?.id}
             </h2>
@@ -290,10 +422,12 @@ export default function AdminDashboard() {
               >
                 <option value="">-- Choose Delivery Boy --</option>
                 {deliveryBoys.map(boy => (
-                  <option key={boy.phone} value={boy.phone}>
+                  // Only Online Boys Visible For Assigned.
+                  boy.active =="online" ? ( <option key={boy.phone} value={boy.phone}>
                     
                     {boy.name} ({boy.phone}) {boy.active=="online" ? "🟢" : "⚪"}
-                  </option>
+                  </option>) : ("")
+                 
                 ))}
               </select>
             </div>

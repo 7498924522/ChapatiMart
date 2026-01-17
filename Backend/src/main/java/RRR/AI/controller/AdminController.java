@@ -27,18 +27,21 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+
+    //Admin get the Customer Data From the Database
     @GetMapping("/admin/orders")
     public ResponseEntity<List<AdminOrderDTO>> getAllOrders() {
         return ResponseEntity.ok(adminService.getAllOrders());
     }
 
+    //Order Vise Update Status confirmed ready
     @PutMapping("/{orderNumber}/status")
     public ResponseEntity<AdminOrderDTO> updateStatus(@PathVariable String orderNumber,
                                                       @RequestBody Map<String, String> body) {
         return ResponseEntity.ok(adminService.updateOrderStatus(orderNumber, body.get("status")));
     }
 
-    // 3️⃣ ASSIGN ORDER
+    // Here The Admin ASSIGNED Order to the Delivery Boy
     @PutMapping("/assign-order")
     public ResponseEntity<?> assignOrder(@RequestBody Map<String, String> req) {
 

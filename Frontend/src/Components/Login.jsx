@@ -36,7 +36,7 @@ export default function Login() {
   const handleAdminLogin = () => {
     // Navigate to admin login or set admin mode
     alert('Redirecting to Admin Login...');
-    // window.location.href = '/admin-login';
+    window.location.href = '/admin';
   };
 
   const handleDeliveryLogin = () => {

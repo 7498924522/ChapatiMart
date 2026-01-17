@@ -49,7 +49,14 @@ public class AdminService {
         dto.setCustomerPincode(order.getCustomer().getPincode());
 
         List<OrderItemDTO> items = order.getItems().stream()
-                .map(i -> new OrderItemDTO(i.getProductId(),i.getProductName(),i.getCategory(), i.getPrice(), i.getQuantity()))
+                 .map(item -> new OrderItemDTO(
+                    item.getProductId(),
+                    item.getProductName(),
+                    item.getQuantity(),
+                    item.getPrice(),
+                    item.getCategory()
+                   
+                ))
                 .collect(Collectors.toList());
         dto.setItems(items);
 

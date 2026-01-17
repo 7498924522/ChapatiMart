@@ -1,8 +1,5 @@
 package RRR.AI.controller;
 
-
-
-import org.apache.http.HttpStatus;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import RRR.AI.entity.Order;
+import RRR.AI.DTO.DeliveryBoyOrderDTO;
 import RRR.AI.entity.DeliveryBoy;
 import RRR.AI.repository.DeliveryBRepository;
 import RRR.AI.repository.OrderRepository;
@@ -22,7 +20,7 @@ import RRR.AI.service.DeliveryBoyService;
 // @CrossOrigin(origins = "http://localhost:5173")
 public class DeliveryBoyController {
 
-    private final DeliveryBoyService service;
+    private DeliveryBoyService service;
     @Autowired
     private DeliveryBRepository deliveryBoyRepository;
     @Autowired
@@ -76,24 +74,31 @@ public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
 }
 
 
-// DELIVERY DASHBOARD
-    @GetMapping("/delivery/orders")
-    public List<Order> myOrders(@RequestParam String phone) {
-        return orderRepo.findByDeliveryBoyPhone(phone);
-    }
+     @GetMapping("/delivery/orders/{phone}")
+    public ResponseEntity<List<DeliveryBoyOrderDTO>> getOrders(
+            @PathVariable String phone) {
 
+        List<DeliveryBoyOrderDTO> orders = service.getOrdersForDeliveryBoy(phone);
+
+        if (orders.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(orders);
+    }
+  
     // UPDATE STATUS
-    @PutMapping("/update-status")
-    public ResponseEntity<?> updateStatus(@RequestBody Map<String, String> req) {
+    // @PutMapping("/update-status")
+    // public ResponseEntity<?> updateStatus(@RequestBody Map<String, String> req) {
 
-        Order order = orderRepo.findByOrderNumber(req.get("orderNumber"))
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+    //     Order order = orderRepo.findByOrderNumber(req.get("orderNumber"))
+    //             .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // order.setStatus(req.get("status"));
-        orderRepo.save(order);
+    //     // order.setStatus(req.get("status"));
+    //     orderRepo.save(order);
 
-        return ResponseEntity.ok("Status Updated");
-    }
+    //     return ResponseEntity.ok("Status Updated");
+    // }
 
    
 }
