@@ -501,8 +501,9 @@ export default function UnifiedCartFlow() {
                            <p className='font-semibold'>Order Status :-</p>
                            <p className="text-sm text-gray-600 mb-4">{statusInfo.description}</p>
                       </div>
-                      
+                     
                       <div className="border-t pt-3 space-y-2 mb-3">
+                         <p className='text-black font-semibold '>Items :-</p>
                         {order.items.map(item => (
                           <div key={item.id} className="flex justify-between text-sm hover:bg-gray-50 rounded px-2 py-1 transition">
                             <span>{item.name} x {item.quantity}</span>
