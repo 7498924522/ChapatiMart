@@ -10,7 +10,7 @@ public class AdminOrderDTO {
     private String paymentMethod;
     private Double total;
     private String orderDate;
-
+   private String deliveryBoyPhone;
     private String customerName;
     private String customerPhone;
     private String customerEmail;
@@ -25,7 +25,7 @@ public class AdminOrderDTO {
 
     // Constructor with all fields
     public AdminOrderDTO(String orderNumber, String status,double deliveryCharge, String paymentMethod, Double total, String orderDate,
-                         String customerName, String customerPhone, String customerEmail, String customerAddress,
+                        String deliveryBoyPhone,String customerName, String customerPhone, String customerEmail, String customerAddress,
                          String customerCity, String customerPincode, List<OrderItemDTO> items) {
         this.orderNumber = orderNumber;
         this.status = status;
@@ -33,6 +33,7 @@ public class AdminOrderDTO {
         this.paymentMethod = paymentMethod;
         this.total = total;
         this.orderDate = orderDate;
+        this.deliveryBoyPhone=deliveryBoyPhone;
         this.customerName = customerName;
         this.customerPhone = customerPhone;
         this.customerEmail = customerEmail;
@@ -90,6 +91,12 @@ public class AdminOrderDTO {
     public void setOrderDate(String orderDate) {
         this.orderDate = orderDate;
     }
+    public String getDeliveryBoyPhone() 
+    { return deliveryBoyPhone; }
+
+    public void setDeliveryBoyPhone(String deliveryBoyPhone) 
+    { this.deliveryBoyPhone = deliveryBoyPhone; }
+
 
     public String getCustomerName() {
         return customerName;

@@ -1,123 +1,126 @@
-package RRR.AI.service;
+// package RRR.AI.service;
 
-import RRR.AI.entity.User;
-import RRR.AI.repository.UserRepository;
+// import RRR.AI.entity.User;
+// import RRR.AI.repository.UserRepository;
+// // import jakarta.annotation.PostConstruct;
 // import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PostConstruct;
 
-import java.time.LocalDateTime;
+// import java.time.LocalDateTime;
 
-import java.util.Optional;
-import java.util.Random;
+// import java.util.Optional;
+// import java.util.Random;
 
-import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
-
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
-
-@Service
-public class UserService {
-
-    @Autowired
-    private UserRepository userRepository;
-
-    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+// import org.springframework.beans.factory.annotation.Autowired;
+// // import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+// import org.springframework.stereotype.Service;
 
 
-    
-    
-    @PostConstruct 
-    public void UserService() {
-        Twilio.init(twilioSid, twilioAuthToken);
-    }
+// import com.twilio.Twilio;
+// import com.twilio.rest.api.v2010.account.Message;
+// import com.twilio.type.PhoneNumber;
+
+// @Service
+// public class UserService {
+
+//     @Autowired
+//     private UserRepository userRepository;
+
+//     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
 
     
-    /* =========================
-       SEND OTP SMS
-    ========================= */
-    private void sendOtpSms(String phone, String otp) {
-        String messageBody = "Your OTP is: " + otp;
-        Message.creator(
-                new PhoneNumber(phone),
-                new PhoneNumber(twilioPhoneNumber),
-                messageBody
-        ).create();
-    }
+    
+    
 
-    /* =========================
-       SEND / RESEND OTP
-    ========================= */
-    public void sendOrResendOtp(String phone) {
-        String otp = String.valueOf(100000 + new Random().nextInt(900000));
 
-        User user = userRepository.findByPhone(phone)
-                .orElse(new User());
+//     @PostConstruct 
+//     public void UserService() {
+//         Twilio.init(twilioSid, twilioAuthToken);
+//     }
 
-        if (user.getResendCount() >= 10) {
-            throw new RuntimeException("OTP resend limit exceeded");
-        }
+    
+//     /* =========================
+//        SEND OTP SMS
+//     ========================= */
+//     private void sendOtpSms(String phone, String otp) {
+//         String messageBody = "Your OTP is: " + otp;
+//         Message.creator(
+//                 new PhoneNumber(phone),
+//                 new PhoneNumber(twilioPhoneNumber),
+//                 messageBody
+//         ).create();
+//     }
 
-        user.setPhone(phone);
-        user.setOtp(otp);
-        user.setExpiryTime(LocalDateTime.now().plusMinutes(5));
-        user.setResendCount(user.getResendCount() + 1);
-        user.setOtpVerified(false);
+//     /* =========================
+//        SEND / RESEND OTP
+//     ========================= */
+//     public void sendOrResendOtp(String phone) {
+//         String otp = String.valueOf(100000 + new Random().nextInt(900000));
 
-        userRepository.save(user);
+//         User user = userRepository.findByPhone(phone)
+//                 .orElse(new User());
 
-        sendOtpSms(phone, otp);
-    }
+//         if (user.getResendCount() >= 10) {
+//             throw new RuntimeException("OTP resend limit exceeded");
+//         }
 
-    /* =========================
-       VERIFY OTP
-    ========================= */
-    public boolean verifyOtp(String phone, String otp) {
-        Optional<User> optionalUser = userRepository.findByPhone(phone);
-        if (optionalUser.isEmpty()) return false;
+//         user.setPhone(phone);
+//         user.setOtp(otp);
+//         user.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+//         user.setResendCount(user.getResendCount() + 1);
+//         user.setOtpVerified(false);
 
-        User user = optionalUser.get();
-        if (user.getExpiryTime().isBefore(LocalDateTime.now())) return false;
-        if (!user.getOtp().equals(otp)) return false;
+//         userRepository.save(user);
 
-        user.setOtpVerified(true);
-        user.setOtp(null);
-        user.setExpiryTime(null);
-        user.setResendCount(0);
+//         sendOtpSms(phone, otp);
+//     }
 
-        userRepository.save(user);
-        return true;
-    }
-    public User getUserByPhone(String phone) {
-    return userRepository.findByPhone(phone)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-}
+//     /* =========================
+//        VERIFY OTP
+//     ========================= */
+//     public boolean verifyOtp(String phone, String otp) {
+//         Optional<User> optionalUser = userRepository.findByPhone(phone);
+//         if (optionalUser.isEmpty()) return false;
 
-// SIGNUP
-    public User registerUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
-    }
+//         User user = optionalUser.get();
+//         if (user.getExpiryTime().isBefore(LocalDateTime.now())) return false;
+//         if (!user.getOtp().equals(otp)) return false;
 
-    // LOGIN WITH EMAIL OR USERNAME
-    public boolean login(String emailOrUsername, String password) {
-        User user;
+//         user.setOtpVerified(true);
+//         user.setOtp(null);
+//         user.setExpiryTime(null);
+//         user.setResendCount(0);
 
-        // Check if user entered an email
-        if (emailOrUsername.contains("@")) {
-            user = userRepository.findByEmail(emailOrUsername);
-        } else {
-            user = userRepository.findByUsername(emailOrUsername);
-        }
+//         userRepository.save(user);
+//         return true;
+//     }
+//     public User getUserByPhone(String phone) {
+//     return userRepository.findByPhone(phone)
+//             .orElseThrow(() -> new RuntimeException("User not found"));
+// }
 
-        if (user == null) return false;
+// // SIGNUP
+//     public User registerUser(User user) {
+//         user.setPassword(passwordEncoder.encode(user.getPassword()));
+//         return userRepository.save(user);
+//     }
 
-        return passwordEncoder.matches(password, user.getPassword());
-    }
+//     // LOGIN WITH EMAIL OR USERNAME
+//     public boolean login(String emailOrUsername, String password) {
+//         User user;
+
+//         // Check if user entered an email
+//         if (emailOrUsername.contains("@")) {
+//             user = userRepository.findByEmail(emailOrUsername);
+//         } else {
+//             user = userRepository.findByUsername(emailOrUsername);
+//         }
+
+//         if (user == null) return false;
+
+//         return passwordEncoder.matches(password, user.getPassword());
+//     }
 
    
-}
+// }

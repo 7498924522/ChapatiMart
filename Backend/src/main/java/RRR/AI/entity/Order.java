@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
+
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -18,6 +20,7 @@ public class Order {
     private double total;
     private String deliveryStatus;
     private LocalDateTime orderDate = LocalDateTime.now();
+    
     private String deliveryBoyPhone;
     private LocalDateTime assignedAt;
   

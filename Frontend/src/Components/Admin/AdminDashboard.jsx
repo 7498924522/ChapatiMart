@@ -7,6 +7,7 @@ import {
   Clock,
   CheckCircle,
   XCircle,
+  ChevronDown,
   Eye,
   Phone,
   MapPin,
@@ -21,6 +22,7 @@ import {
   Search,
   UserPlus,
   Calendar,
+  User
 } from 'lucide-react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
@@ -45,10 +47,7 @@ export default function AdminDashboard() {
 
   const [orders, setOrders] = useState([])
   const [inventory, setInventory] = useState([
-    { id: 'P001', name: 'Wheat Chapati', stock: 150, price: 10, sold: 45 },
-    { id: 'P002', name: 'Puranpoli', stock: 80, price: 25, sold: 23 },
-    { id: 'P003', name: 'Bhakari', stock: 120, price: 15, sold: 38 },
-    { id: 'P004', name: 'Rice Chapati', stock: 90, price: 20, sold: 19 },
+    
   ])
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -68,12 +67,15 @@ export default function AdminDashboard() {
     }
   }
 
+ 
+
   //Here The Admin Able To Access The All Customer Orders With The Proper Data
   const fetchOrders = async () => {
     try {
       const res = await axios.get('http://localhost:8080/api/admin/orders')
       const mappedOrders = res.data.map((order) => ({
         id: order.orderNumber,
+        deliveryBoyPhone:order.deliveryBoyPhone,
         customerName: order.customerName ?? 'N/A',
         phone: order.customerPhone ?? 'N/A',
         address: `${order.customerAddress || ''}, ${
@@ -89,13 +91,14 @@ export default function AdminDashboard() {
         total: order.total,
         status: order.status ?? 'PENDING',
         DeliveryCharge: order.deliveryCharge,
+        
         time: order.orderDate
           ? new Date(order.orderDate).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
             })
           : 'N/A',
-        paymentMethod: order.paymentMethod ?? 'N/A',
+         paymentMethod: order.paymentMethod ?? 'N/A',
         Date: order.orderDate
           ? new Date(order.orderDate).toLocaleDateString('en-IN', {
               day: '2-digit',
@@ -104,8 +107,12 @@ export default function AdminDashboard() {
               weekday: 'long',
             })
           : 'N/A',
+         
+       
       }))
       setOrders(mappedOrders)
+      setInventory(mappedOrders)
+      
     } catch (err) {
       console.error('Failed to fetch orders:', err)
     }
@@ -125,6 +132,20 @@ export default function AdminDashboard() {
       })
       alert('Order Assigned Successfully 🚴')
       updateOrderStatus(assigningOrder.id, 'assigned')
+      
+    //    setOrders((prevOrders) =>
+    //   prevOrders.map((order) =>
+    //     order.id === assigningOrder.id
+    //       ? {
+    //           ...order,
+    //           status: 'assigned',
+    //           deliveryBoy: deliveryBoys.find(
+    //             (b) => b.phone === selectedBoy
+    //           ),
+    //         }
+    //       : order
+    //   )
+    // );
       setShowAssignModal(false)
       setAssigningOrder(null)
       setSelectedBoy('')
@@ -133,6 +154,9 @@ export default function AdminDashboard() {
       alert('Failed to assign order. Please try again.')
     }
   }
+  // console.log(orders);
+
+ 
 
   //Here Admin Have The Access To Update The Order Status From Pending To Accept&Preparing ,Ready And Assigned.
   const updateOrderStatus = async (orderNumber, newStatus) => {
@@ -189,6 +213,9 @@ export default function AdminDashboard() {
     return new Date(b.Date) - new Date(a.Date)
   })
 
+  
+                
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -206,13 +233,24 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+             <span
+              className="mr-5 hover:underline  cursor-pointer flex items-center gap-1 text-green-700 font-medium"
+           onClick={() => navigate("/deliveryB_list")}
+            >
+              <Eye size={18} />Delivery Boys
+            </span>
             <span
               className="mr-5 hover:underline cursor-pointer flex items-center gap-1 text-green-700 font-medium"
-              onClick={() => setShowDeliveryModal(true)}
+            onClick={()=>setShowDeliveryModal(true)}
             >
               <UserPlus size={18} /> Add Delivery Boy
             </span>
-            <span className="text-sm text-gray-600">Today: Jan 4, 2026</span>
+            <span className="text-sm font-semibold text-black">{new Date().toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              weekday: 'long',
+            })}</span>
             <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
               <Users size={20} className="text-green-700" />
             </div>
@@ -269,7 +307,7 @@ export default function AdminDashboard() {
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-md mb-6">
           <div className="border-b px-6 flex gap-2">
-            {['orders', 'inventory', 'cancelled', 'history'].map((tab) => (
+            {['orders','assigned','cancelled', 'history','all management'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -302,14 +340,17 @@ export default function AdminDashboard() {
               </div>
 
               <div className="space-y-6">
+                
                 {sortedOrders.map((order) =>
-                  order.status != 'delivered' && order.status != 'cancelled' ? (
+                  order.status == 'PENDING' || order.status == 'confirmed_preparing' || order.status== "ready" ? (
                     <div 
                     key={order.id}className="space-y-6">
                       <div
                         
                         className="bg-white rounded-3xl shadow-md border overflow-hidden"
                       >
+                      
+                       
                         {/* Order Header */}
                         <div className="flex items-center m-2 gap-3 bg-gradient-to-r from-green-50 to-green-100 p-2 rounded-xl border-l-4 border-green-500">
                           <Calendar className="w-6 h-6 text-green-600" />
@@ -330,10 +371,13 @@ export default function AdminDashboard() {
                             <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
                               {order.status}
                             </span>
+                             <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
+                              {order.deliveryBoyPhone ? `Assigned Delivery boy :-${order.deliveryBoyPhone}`:"Not Assign :-"}
+                            </span>
                           </div>
                           <div className="text-right">
                             <p className="text-2xl font-bold text-green-600">
-                              Toatal :- ₹{order.total}
+                              Total :- ₹{order.total}
                             </p>
                           </div>
                         </div>
@@ -477,77 +521,166 @@ export default function AdminDashboard() {
           )}
           {/* Inventory and Analytics remain the same as your source */}
 
-          {activeTab === 'inventory' && (
-            <div className="p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold">Inventory Management</h2>
-                <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2">
-                  <Plus size={18} />
-                  Add Product
-                </button>
+          {activeTab === 'all management' && (
+        <div className="p-6 max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg">
+                  <Truck className="text-white" size={28} />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-800">Delivery Management</h2>
+                  <p className="text-gray-600 mt-1">Track and manage all active deliveries</p>
+                </div>
               </div>
+              <div className="bg-white px-6 py-3 rounded-xl shadow-md border border-gray-200">
+                  
+                <div className="text-sm text-gray-600">Current Session</div>
+                <div className="text-xl font-bold text-blue-600">{new Date().toLocaleDateString()}</div>
+              
+              </div>
+              
+            </div>
+          </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left py-3 px-4 font-semibold">
-                        Product
-                      </th>
-                      <th className="text-left py-3 px-4 font-semibold">
-                        Stock
-                      </th>
-                      <th className="text-left py-3 px-4 font-semibold">
-                        Price
-                      </th>
-                      <th className="text-left py-3 px-4 font-semibold">
-                        Sold Today
-                      </th>
-                      <th className="text-left py-3 px-4 font-semibold">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {inventory.map((item) => (
-                      <tr key={item.id} className="border-b hover:bg-gray-50">
-                        <td className="py-4 px-4 font-medium">{item.name}</td>
+          {/* Delivery Boys Summary */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {deliveryBoys.map(boy => (
+              <div key={boy.id} className="bg-white p-4 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-to-br from-green-400 to-blue-500 p-2 rounded-lg">
+                    <User className="text-white" size={20} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-800">{boy.name}</div>
+                    <div className="text-xs text-gray-500">{boy.phone}</div>
+                  </div>
+                  <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
+                    {boy.activeDeliveries}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Orders Table */}
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <User size={16} />
+                        Customer
+                      </div>
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Phone size={16} />
+                        Contact
+                      </div>
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Package size={16} />
+                        Amount
+                      </div>
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <CreditCard size={16} />
+                        Payment
+                      </div>
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Truck size={16} />
+                        Delivery Boy
+                      </div>
+                    </th>
+                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Clock size={16} />
+                        Status
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inventory.map((item, index) => {
+                   
+                    return (
+                      <tr 
+                        key={item.id} 
+                        className={`border-b hover:bg-blue-50 transition-colors ${
+                          index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                        }`}
+                      >
                         <td className="py-4 px-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              item.stock > 100
-                                ? 'bg-green-100 text-green-700'
-                                : item.stock > 50
-                                ? 'bg-yellow-100 text-yellow-700'
-                                : 'bg-red-100 text-red-700'
-                            }`}
-                          >
-                            {item.stock} units
-                          </span>
-                        </td>
-                        <td className="py-4 px-4 font-semibold">
-                          ₹{item.price}
-                        </td>
-                        <td className="py-4 px-4 text-gray-600">
-                          {item.sold} units
+                          <div className="font-semibold text-gray-800">{item.customerName}</div>
+                          <div className="text-xs text-gray-500">{item.time}</div>
+                          <div className="text-xs text-gray-500">{item.Date}</div>
                         </td>
                         <td className="py-4 px-4">
-                          <div className="flex gap-2">
-                            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition">
-                              <Edit size={18} />
-                            </button>
-                            <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
-                              <Trash2 size={18} />
-                            </button>
+                          <div className="flex items-center gap-2 text-gray-700">
+                            <Phone size={14} className="text-gray-400" />
+                            {item.phone}
                           </div>
                         </td>
+                        <td className="py-4 px-4">
+                          <div className="font-bold text-green-600 text-lg">
+                            ₹{item.total.toLocaleString()}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="text-sm text-gray-600 mb-1">{item.paymentMethod}</div>
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold`}>
+                            <CheckCircle size={12} />
+                            {item.paymentStatus}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="relative">
+                            <select 
+                              
+                             
+                              className="appearance-none   bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg px-3 py-2 pr-8 font-semibold text-gray-800 cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                            >
+                              {deliveryBoys.map(boy => (
+                                <option className='' key={boy.id} value={boy.id}>
+                                  {boy.name}  
+                                  
+                                </option>
+                              ))}
+                            </select>
+                              </div>
+                         
+                        </td>
+                       <td className="py-5 px-6">
+                  <span className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                    item.status === 'delivered' ? 'bg-green-600 text-white' : 
+                    item.status === 'cancelled' ? 'bg-blue-600 text-white' : 
+                    item.status==="assigned" ? 'bg-orange-500 text-white' :""
+                    
+
+                  }`}>
+                    {item.status}
+                  </span>
+                </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          )}
+          </div>
+
+          
+        </div>
+      )}
 
           {activeTab === 'history' && (
             <div className="p-6">
@@ -591,6 +724,9 @@ export default function AdminDashboard() {
                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
                             {order.status}
                           </span>
+                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
+                              {order.deliveryBoyPhone ? `Assigned Delivery boy :-${order.deliveryBoyPhone}`:"Not Assign :-"}
+                            </span>
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-green-600">
@@ -681,7 +817,7 @@ export default function AdminDashboard() {
                 />
                 <input
                   type="text"
-                  placeholder="Search History by Order ID or Name..."
+                  placeholder="Search Cancelled Orders by Order ID or Name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-6 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none"
@@ -692,7 +828,7 @@ export default function AdminDashboard() {
                 {sortedOrders.map((order) =>
                   order.status == 'cancelled' ? (
                     <div
-                      key={order.status}
+                      key={order.id}
                       className="bg-white rounded-3xl shadow-md border overflow-hidden"
                     >
                       {/* Order Header */}
@@ -714,6 +850,9 @@ export default function AdminDashboard() {
                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
                             {order.status}
                           </span>
+                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
+                              {order.deliveryBoyPhone ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`:"Not Assign :-"}
+                            </span>
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-green-600">
@@ -788,6 +927,139 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
+
+
+           {activeTab === 'assigned' && (
+            <div className="p-6">
+              <div className="relative mb-8">
+                <Search
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  placeholder="Search Assigned Orders by Order ID or Name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-6 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none"
+                />
+              </div>
+
+              <div className="space-y-6">
+                {sortedOrders.map((order) =>
+                   order.status=="assigned"||order.status=="delivering"  ? (
+                    <div
+                      key={order.id}
+                      className="bg-white rounded-3xl shadow-md border overflow-hidden"
+                    >
+                      {/* Order Header */}
+
+                      <div className="flex items-center gap-3 m-2 bg-gradient-to-r from-green-50 to-green-100 p-2 rounded-xl border-l-4 border-green-500">
+                        <Calendar className="w-6 h-6 text-green-600" />
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-800">
+                            {order.Date}
+                          </h3>
+                          <p className="text-xs text-gray-500">{order.time}</p>
+                        </div>
+                      </div>
+                      <div className="p-6 pt-2 border-b flex justify-between items-center bg-gray-50">
+                        <div className="flex items-center gap-4">
+                          <span className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-lg">
+                            #{order.id}
+                          </span>
+                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
+                            {order.status}
+                          </span>
+                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
+                              {order.deliveryBoyPhone ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`:"Not Assign :-"}
+                            </span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-green-600">
+                            Total :- ₹{order.total}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Order Content */}
+                      <div className="p-6 grid md:grid-cols-2 gap-6">
+                        <div className="bg-blue-50 p-4 rounded-2xl">
+                          <h3 className="text-xs font-bold text-blue-800 uppercase mb-2">
+                            Customer
+                          </h3>
+                          <p className="font-bold">{order.customerName}</p>
+                          <p className="text-sm text-gray-600">{order.phone}</p>
+                          <p className="text-sm mt-2 flex gap-1">
+                            <MapPin size={14} /> {order.address}
+                          </p>
+
+                          <div className="pt-2 mt-2 border-t border-blue-200">
+                            <p className="text-xs text-gray-600 mb-1 font-medium">
+                              Delivery Charge
+                            </p>
+                            <p className="font-semibold text-gray-900">
+                              ₹{order.DeliveryCharge}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="bg-orange-50 p-4 rounded-2xl">
+                          <h3 className="text-xs font-bold text-orange-800 uppercase mb-2">
+                            Items
+                          </h3>
+                          {order.items.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="flex justify-between text-sm"
+                            >
+                              <span>
+                                {item.qty}x {item.name}
+                              </span>
+                              <span className="font-bold">
+                                ₹{item.price * item.qty}
+                              </span>
+                            </div>
+                          ))}
+
+                          <div className="bg-gradient-to-r my-5 from-purple-50 to-purple-100/50 p-4 rounded-2xl">
+                            <h3 className="text-sm  font-semibold text-purple-900 mb-2 uppercase tracking-wide flex items-center gap-2">
+                              <CreditCard className="w-4 h-4" />
+                              Payment Method
+                            </h3>
+                            <p className="font-semibold text-gray-900">
+                              {order.paymentMethod}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ACTION BUTTONS */}
+                      <div className="p-6 pt-0 flex gap-3">
+                        {order.status === 'assigned' && (
+                            <button
+                              onClick={() =>
+                                updateOrderStatus(order.id, 'assigned')
+                              }
+                              className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700"
+                            >
+                              <i>Order Assigned</i>
+                            </button>
+                          )}
+
+                          {order.status === 'delivering' && (
+                            <button className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">
+                              Delivering,,,
+                            </button>
+                          )}
+                        
+                      </div>
+                    </div>
+                  ) : null,
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -847,13 +1119,7 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold text-green-700 flex items-center gap-2">
                 🚴 Create Delivery Boy
               </h2>
-              <span
-                onClick={() => navigate('/deliveryB_list')}
-                className="flex gap-1 text-blue-500 cursor-pointer text-sm font-bold"
-              >
-                <Eye size={16} />
-                List
-              </span>
+             
             </div>
             <div className="space-y-4">
               <input

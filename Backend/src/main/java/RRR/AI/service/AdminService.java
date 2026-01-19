@@ -40,7 +40,7 @@ public class AdminService {
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setTotal(order.getTotal());
         dto.setOrderDate(order.getOrderDate().toString());
-
+        dto.setDeliveryBoyPhone(order.getDeliveryBoyPhone());
         dto.setCustomerName(order.getCustomer().getName());
         dto.setCustomerPhone(order.getCustomer().getPhone());
         dto.setCustomerEmail(order.getCustomer().getEmail());
