@@ -30,11 +30,11 @@ import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const billRefs = useRef([]);
+  const billRefs = useRef(null);
    const handlePrint = useReactToPrint({
-    documentTitle: "Customer_Bill",
-  });
-
+  contentRef: billRefs,
+  documentTitle: "Order Bill",
+});
   const [activeTab, setActiveTab] = useState("orders");
 
   // Delivery States
@@ -351,13 +351,7 @@ export default function AdminDashboard() {
                             <p className="text-xs text-gray-500">
                               {order.time}
                             </p>
-                            <span
-                              className="mr-5 hover:underline  cursor-pointer flex items-center gap-1 text-green-700 font-medium"
-                              onClick={() => navigate("/deliveryB_list")}
-                            >
-                              <Eye size={18} />
-                              Delivery Boys
-                            </span>
+                          
                           </div>
                         </div>
                         <div className="p-6 pt-2 border-b flex justify-between items-center bg-gray-50">
@@ -373,6 +367,16 @@ export default function AdminDashboard() {
                                 ? `Assigned Delivery boy :-${order.deliveryBoyPhone}`
                                 : "Not Assign :-"}
                             </span>
+                             <span
+                            onClick={() => {
+                              setOrdersBill(order);
+                              setShowBillModal(true);
+                            }}
+                            className="flex items-center px-3 py-1 bg-yellow-100 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
+                          >
+                            <Eye size={18} />
+                            View Bill
+                          </span>
                           </div>
                           <div className="text-right">
                             <p className="text-2xl font-bold text-green-600">
@@ -885,6 +889,16 @@ export default function AdminDashboard() {
                               ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`
                               : "Not Assign :-"}
                           </span>
+                           <span
+                            onClick={() => {
+                              setOrdersBill(order);
+                              setShowBillModal(true);
+                            }}
+                            className="flex items-center px-3 py-1 bg-yellow-100 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
+                          >
+                            <Eye size={18} />
+                            View Bill
+                          </span>
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-green-600">
@@ -1006,6 +1020,17 @@ export default function AdminDashboard() {
                             {order.deliveryBoyPhone
                               ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`
                               : "Not Assign :-"}
+                          </span>
+
+                           <span
+                            onClick={() => {
+                              setOrdersBill(order);
+                              setShowBillModal(true);
+                            }}
+                            className="flex items-center px-3 py-1 bg-yellow-100 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
+                          >
+                            <Eye size={18} />
+                            View Bill
                           </span>
                         </div>
                         <div className="text-right">
@@ -1215,11 +1240,12 @@ export default function AdminDashboard() {
       </button>
 
       {/* BILL */}
-      <div key={idx} className="max-w-4xl mx-auto">
+     
+      <div className="max-w-4xl mx-auto">
          
-    <div ref={(el) => (billRefs.current[idx] = el)}>
+    <div ref={billRefs} className="p-2">
 
-        <div className="text-center mb-4">
+        <div  className="text-center mb-4">
           <h2 className="text-2xl font-bold">BHAKRI CENTER</h2>
           <p>Address :- Shop No (08) Asavari Gate Closest</p>
           <p><u>Contact Us</u> :- +91 1234567891</p>
@@ -1234,9 +1260,12 @@ export default function AdminDashboard() {
             {ordersBill.Date}
           </span>
         </div>
-        <div className="mb-2">
+        <div className="flex justify-between mb-2">
           <span className="font-semibold ">
            Payment: {ordersBill.paymentMethod !== "COD" ? ordersBill.paymentMethod : "Scanner"}
+          </span>
+          <span className="text-sm text-black ">
+           Time: {ordersBill.time}
           </span>
         
         </div>
@@ -1270,37 +1299,32 @@ export default function AdminDashboard() {
               <td colSpan="3" className="border px-3 py-2 text-right font-bold">
                 Grand Total
               </td>
-              <td className="border px-3 py-2 text-right font-bold text-orange-600">
+              <td className="border border-black px-3 py-2 text-right font-bold text-orange-600">
                 ₹{ordersBill.total}
               </td>
             </tr>
           </tfoot>
         </table>
       </div>
+     
        
 
        {/* BUTTONS (NOT PRINTED) */}
                   <div className="flex gap-3 mt-3 print:hidden">
                 <button
-                  onClick={() =>
-                    handlePrint(() => billRefs.current[idx])
-                  }
+                  onClick={handlePrint}
                   className="bg-green-500 text-white px-3 py-1 rounded cursor-pointer"
                 >
                   PRINT / PDF
                 </button>
 
-                {/* <button
-                  onClick={() => deleteBill(idx)}
-                  className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
-                >
-                  DELETE
-                </button> */}
+                
+              </div>
               </div>
       
     </div>
     </div>
-  </div>
+ 
 )}
 
     </div>
