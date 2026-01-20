@@ -55,7 +55,14 @@ export default function DeliveryDashboard() {
               minute: "2-digit"
             })
           : "N/A",
-        orderDate: order.orderDate ? new Date(order.orderDate) : new Date(),
+        orderDate:  order.orderDate
+          ? new Date(order.orderDate).toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              weekday: 'long',
+            })
+          : 'N/A',
         paymentMethod: order.paymentMethod,
         deliveredTime: order.deliveredTime || null
       }));
@@ -167,7 +174,7 @@ export default function DeliveryDashboard() {
               </div>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">ChapatiMart Delivery</h1>
-                <p className="text-orange-100 text-sm font-medium">Partner Dashboard</p>
+                <p className="text-white text-sm font-medium">📞{phone}</p>
               </div>
             </div>
 
@@ -478,7 +485,10 @@ export default function DeliveryDashboard() {
             )}
 
             <div className="space-y-8">
-              {Object.entries(historyByDay).map(([day, dayOrders]) => (
+              {Object.entries(historyByDay)
+              .slice()
+              .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+              .map(([day, dayOrders]) => (
                 <div key={day} className="space-y-4">
                   {/* Day Header */}
                   <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border-l-4 border-green-500">

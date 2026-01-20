@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useRef } from "react";
 import {
   Package,
   Truck,
@@ -22,65 +22,71 @@ import {
   Search,
   UserPlus,
   Calendar,
-  User
-} from 'lucide-react'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+  User,
+} from "lucide-react";
+import axios from "axios";
+import { useReactToPrint } from "react-to-print";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
-  const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('orders')
+  const navigate = useNavigate();
+  const billRefs = useRef([]);
+   const handlePrint = useReactToPrint({
+    documentTitle: "Customer_Bill",
+  });
+
+  const [activeTab, setActiveTab] = useState("orders");
 
   // Delivery States
-  const [showDeliveryModal, setShowDeliveryModal] = useState(false)
-  const [showAssignModal, setShowAssignModal] = useState(false) // Pop Up for the assign boy
-  const [deliveryBoys, setDeliveryBoys] = useState([])
-  const [assigningOrder, setAssigningOrder] = useState(null) // The order currently being assigned
-  const [selectedBoy, setSelectedBoy] = useState('')
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [showBillModal, setShowBillModal] = useState(false);
+  const [ordersBill,setOrdersBill]=useState(null);
+  const [showAssignModal, setShowAssignModal] = useState(false); // Pop Up for the assign boy
+  const [deliveryBoys, setDeliveryBoys] = useState([]);
+  const [assigningOrder, setAssigningOrder] = useState(null); // The order currently being assigned
+  const [selectedBoy, setSelectedBoy] = useState("");
+
+ 
 
   const [deliveryForm, setDeliveryForm] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    password: '',
-  })
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+  });
 
-  const [orders, setOrders] = useState([])
-  const [inventory, setInventory] = useState([
-    
-  ])
-  const [searchTerm, setSearchTerm] = useState('')
+  const [orders, setOrders] = useState([]);
+  const [inventory, setInventory] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchOrders()
-    fetchDeliveryBoys()
-  }, [])
+    fetchOrders();
+    fetchDeliveryBoys();
+  }, []);
 
   //All Delivery Boys Which We Have Created For The Assigned Orders To  Active Boys.
   // Important Thing Is We can See There Status Like Online Or Offline
   const fetchDeliveryBoys = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/admin/delivery-boys')
-      setDeliveryBoys(res.data)
+      const res = await axios.get("http://localhost:8080/admin/delivery-boys");
+      setDeliveryBoys(res.data);
     } catch (err) {
-      console.error('Failed to fetch delivery boys', err)
+      console.error("Failed to fetch delivery boys", err);
     }
-  }
-
- 
+  };
 
   //Here The Admin Able To Access The All Customer Orders With The Proper Data
   const fetchOrders = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/api/admin/orders')
+      const res = await axios.get("http://localhost:8080/api/admin/orders");
       const mappedOrders = res.data.map((order) => ({
         id: order.orderNumber,
-        deliveryBoyPhone:order.deliveryBoyPhone,
-        customerName: order.customerName ?? 'N/A',
-        phone: order.customerPhone ?? 'N/A',
-        address: `${order.customerAddress || ''}, ${
-          order.customerCity || ''
-        } - ${order.customerPincode || ''}`,
+        deliveryBoyPhone: order.deliveryBoyPhone,
+        customerName: order.customerName ?? "N/A",
+        phone: order.customerPhone ?? "N/A",
+        address: `${order.customerAddress || ""}, ${
+          order.customerCity || ""
+        } - ${order.customerPincode || ""}`,
         items:
           order.items?.map((i) => ({
             category: i.category,
@@ -89,132 +95,112 @@ export default function AdminDashboard() {
             price: i.price,
           })) || [],
         total: order.total,
-        status: order.status ?? 'PENDING',
+        status: order.status ?? "PENDING",
         DeliveryCharge: order.deliveryCharge,
-        
+
         time: order.orderDate
           ? new Date(order.orderDate).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
+              hour: "2-digit",
+              minute: "2-digit",
             })
-          : 'N/A',
-         paymentMethod: order.paymentMethod ?? 'N/A',
+          : "N/A",
+        paymentMethod: order.paymentMethod ?? "N/A",
         Date: order.orderDate
-          ? new Date(order.orderDate).toLocaleDateString('en-IN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              weekday: 'long',
+          ? new Date(order.orderDate).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              weekday: "long",
             })
-          : 'N/A',
-         
-       
-      }))
-      setOrders(mappedOrders)
-      setInventory(mappedOrders)
-      
+          : "N/A",
+      }));
+      setOrders(mappedOrders);
+      setInventory(mappedOrders);
     } catch (err) {
-      console.error('Failed to fetch orders:', err)
+      console.error("Failed to fetch orders:", err);
     }
-  }
+  };
 
   // With The Help Of OrderNumber We Assigned Delivery Boy Number
   const handleAssignSubmit = async () => {
     if (!selectedBoy) {
-      alert('Please select a delivery boy!')
-      return
+      alert("Please select a delivery boy!");
+      return;
     }
 
     try {
-      await axios.put('http://localhost:8080/api/assign-order', {
+      await axios.put("http://localhost:8080/api/assign-order", {
         orderNumber: assigningOrder.id,
         deliveryBoyPhone: selectedBoy,
-      })
-      alert('Order Assigned Successfully 🚴')
-      updateOrderStatus(assigningOrder.id, 'assigned')
-      
-    //    setOrders((prevOrders) =>
-    //   prevOrders.map((order) =>
-    //     order.id === assigningOrder.id
-    //       ? {
-    //           ...order,
-    //           status: 'assigned',
-    //           deliveryBoy: deliveryBoys.find(
-    //             (b) => b.phone === selectedBoy
-    //           ),
-    //         }
-    //       : order
-    //   )
-    // );
-      setShowAssignModal(false)
-      setAssigningOrder(null)
-      setSelectedBoy('')
-      fetchOrders() // Refresh to see status update
-    } catch (err) {
-      alert('Failed to assign order. Please try again.')
-    }
-  }
-  // console.log(orders);
+      });
+      alert("Order Assigned Successfully 🚴");
+      updateOrderStatus(assigningOrder.id, "assigned");
 
- 
+      setShowAssignModal(false);
+      setAssigningOrder(null);
+      setSelectedBoy("");
+      fetchOrders(); // Refresh to see status update
+    } catch (err) {
+      alert("Failed to assign order. Please try again.");
+    }
+  };
+  // console.log(orders);
 
   //Here Admin Have The Access To Update The Order Status From Pending To Accept&Preparing ,Ready And Assigned.
   const updateOrderStatus = async (orderNumber, newStatus) => {
     try {
       await axios.put(`http://localhost:8080/api/${orderNumber}/status`, {
         status: newStatus,
-      })
-      fetchOrders()
+      });
+      fetchOrders();
     } catch (err) {
-      console.error('Failed to update order:', err)
+      console.error("Failed to update order:", err);
     }
-  }
+  };
 
   //Account Of Delivery Boy
   const createDeliveryBoy = async () => {
     try {
-      await axios.post('http://localhost:8080/admin/delivery-boy', {
+      await axios.post("http://localhost:8080/admin/delivery-boy", {
         ...deliveryForm,
-        active: 'offline',
-      })
-      alert('Delivery Boy Created Successfully ✅')
-      setShowDeliveryModal(false)
-      setDeliveryForm({ name: '', phone: '', email: '', password: '' })
-      fetchDeliveryBoys()
+        active: "offline",
+      });
+      alert("Delivery Boy Created Successfully ✅");
+      setShowDeliveryModal(false);
+      setDeliveryForm({ name: "", phone: "", email: "", password: "" });
+      fetchDeliveryBoys();
     } catch (err) {
-      alert('Failed to create delivery boy ❌')
+      alert("Failed to create delivery boy ❌");
     }
-  }
+  };
 
   const handleDeliveryChange = (e) => {
-    setDeliveryForm({ ...deliveryForm, [e.target.name]: e.target.value })
-  }
+    setDeliveryForm({ ...deliveryForm, [e.target.name]: e.target.value });
+  };
 
   const stats = {
     todayOrders: orders.length,
 
-    //Only Total When Delivered 
-    todayRevenue : orders.reduce(
-  (sum, o) => o.status?.toLowerCase() == "delivered" ? sum + o.total : sum,
-  0
-),
+    //Only Total When Delivered
+    todayRevenue: orders.reduce(
+      (sum, o) =>
+        o.status?.toLowerCase() == "delivered" ? sum + o.total : sum,
+      0,
+    ),
 
-    pendingOrders: orders.filter((o) => o.status === 'PENDING').length,
-    totalCustomers: orders.filter((o) => o.status === 'delivered').length,
-  }
+    pendingOrders: orders.filter((o) => o.status === "PENDING").length,
+    totalCustomers: orders.filter((o) => o.status === "delivered").length,
+  };
 
   const filteredOrders = orders.filter(
     (order) =>
       order.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customerName.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  );
 
   const sortedOrders = [...filteredOrders].sort((a, b) => {
-    return new Date(b.Date) - new Date(a.Date)
-  })
-
-  
-                
+    return new Date(b.Date) - new Date(a.Date);
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -233,24 +219,27 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-             <span
+            <span
               className="mr-5 hover:underline  cursor-pointer flex items-center gap-1 text-green-700 font-medium"
-           onClick={() => navigate("/deliveryB_list")}
+              onClick={() => navigate("/deliveryB_list")}
             >
-              <Eye size={18} />Delivery Boys
+              <Eye size={18} />
+              Delivery Boys
             </span>
             <span
               className="mr-5 hover:underline cursor-pointer flex items-center gap-1 text-green-700 font-medium"
-            onClick={()=>setShowDeliveryModal(true)}
+              onClick={() => setShowDeliveryModal(true)}
             >
               <UserPlus size={18} /> Add Delivery Boy
             </span>
-            <span className="text-sm font-semibold text-black">{new Date().toLocaleDateString('en-IN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              weekday: 'long',
-            })}</span>
+            <span className="text-sm font-semibold text-black">
+              {new Date().toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                weekday: "long",
+              })}
+            </span>
             <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
               <Users size={20} className="text-green-700" />
             </div>
@@ -307,14 +296,20 @@ export default function AdminDashboard() {
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-md mb-6">
           <div className="border-b px-6 flex gap-2">
-            {['orders','assigned','cancelled', 'history','all management'].map((tab) => (
+            {[
+              "orders",
+              "assigned",
+              "cancelled",
+              "history",
+              "all management",
+            ].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-6 py-4 font-semibold capitalize ${
                   activeTab === tab
-                    ? 'border-b-2 border-green-600 text-green-700'
-                    : 'text-gray-500'
+                    ? "border-b-2 border-green-600 text-green-700"
+                    : "text-gray-500"
                 }`}
               >
                 {tab}
@@ -323,7 +318,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Orders Tab */}
-          {activeTab === 'orders' && (
+          {activeTab === "orders" && (
             <div className="p-6">
               <div className="relative mb-8">
                 <Search
@@ -340,17 +335,12 @@ export default function AdminDashboard() {
               </div>
 
               <div className="space-y-6">
-                
                 {sortedOrders.map((order) =>
-                  order.status == 'PENDING' || order.status == 'confirmed_preparing' || order.status== "ready" ? (
-                    <div 
-                    key={order.id}className="space-y-6">
-                      <div
-                        
-                        className="bg-white rounded-3xl shadow-md border overflow-hidden"
-                      >
-                      
-                       
+                  order.status == "PENDING" ||
+                  order.status == "confirmed_preparing" ||
+                  order.status == "ready" ? (
+                    <div key={order.id} className="space-y-6">
+                      <div className="bg-white rounded-3xl shadow-md border overflow-hidden">
                         {/* Order Header */}
                         <div className="flex items-center m-2 gap-3 bg-gradient-to-r from-green-50 to-green-100 p-2 rounded-xl border-l-4 border-green-500">
                           <Calendar className="w-6 h-6 text-green-600" />
@@ -361,6 +351,13 @@ export default function AdminDashboard() {
                             <p className="text-xs text-gray-500">
                               {order.time}
                             </p>
+                            <span
+                              className="mr-5 hover:underline  cursor-pointer flex items-center gap-1 text-green-700 font-medium"
+                              onClick={() => navigate("/deliveryB_list")}
+                            >
+                              <Eye size={18} />
+                              Delivery Boys
+                            </span>
                           </div>
                         </div>
                         <div className="p-6 pt-2 border-b flex justify-between items-center bg-gray-50">
@@ -371,8 +368,10 @@ export default function AdminDashboard() {
                             <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
                               {order.status}
                             </span>
-                             <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                              {order.deliveryBoyPhone ? `Assigned Delivery boy :-${order.deliveryBoyPhone}`:"Not Assign :-"}
+                            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
+                              {order.deliveryBoyPhone
+                                ? `Assigned Delivery boy :-${order.deliveryBoyPhone}`
+                                : "Not Assign :-"}
                             </span>
                           </div>
                           <div className="text-right">
@@ -439,12 +438,12 @@ export default function AdminDashboard() {
 
                         {/* ACTION BUTTONS */}
                         <div className="p-6 pt-0 flex gap-3">
-                          {order.status === 'PENDING' && (
+                          {order.status === "PENDING" && (
                             <button
                               onClick={() =>
                                 updateOrderStatus(
                                   order.id,
-                                  'confirmed_preparing',
+                                  "confirmed_preparing",
                                 )
                               }
                               className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700"
@@ -452,31 +451,31 @@ export default function AdminDashboard() {
                               Accept & Prepare
                             </button>
                           )}
-                          {order.status === 'confirmed_preparing' && (
+                          {order.status === "confirmed_preparing" && (
                             <button
                               onClick={() =>
-                                updateOrderStatus(order.id, 'ready')
+                                updateOrderStatus(order.id, "ready")
                               }
                               className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700"
                             >
                               Mark as Ready
                             </button>
                           )}
-                          {order.status === 'ready' && (
+                          {order.status === "ready" && (
                             <button
                               onClick={() => {
-                                setAssigningOrder(order)
-                                setShowAssignModal(true)
+                                setAssigningOrder(order);
+                                setShowAssignModal(true);
                               }}
                               className="flex-1 bg-orange-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-orange-700"
                             >
                               <Truck size={20} /> Assign Delivery Boy
                             </button>
                           )}
-                          {order.status === 'assigned' && (
+                          {order.status === "assigned" && (
                             <button
                               onClick={() =>
-                                updateOrderStatus(order.id, 'assigned')
+                                updateOrderStatus(order.id, "assigned")
                               }
                               className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700"
                             >
@@ -484,28 +483,28 @@ export default function AdminDashboard() {
                             </button>
                           )}
 
-                          {order.status === 'delivering' && (
+                          {order.status === "delivering" && (
                             <button className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">
                               Delivering,,,
                             </button>
                           )}
-                          {order.status === 'delivered' && (
+                          {order.status === "delivered" && (
                             <div className="flex-1 text-center py-3 bg-gray-100 rounded-xl font-bold text-gray-500 border italic">
                               Order Closed
                             </div>
                           )}
 
-                          {order.status === 'cancelled' && (
+                          {order.status === "cancelled" && (
                             <div className="flex-1 text-center py-3 bg-gradient-to-r from-red-100 px-5 to-red-200 text-red-800 border rounded-xl font-bold italic">
                               Order Cancelled
                             </div>
                           )}
 
-                          {order.status === 'PENDING' && (
+                          {order.status === "PENDING" && (
                             <div className=" bg-gradient-to-r from-red-100 px-5 to-red-200 text-red-800 py-4 rounded-xl font-bold flex items-center justify-center gap-2 border-2 border-red-300">
                               <XCircle
                                 onClick={() =>
-                                  updateOrderStatus(order.id, 'cancelled')
+                                  updateOrderStatus(order.id, "cancelled")
                                 }
                                 className="w-5 h-5"
                               />
@@ -521,168 +520,185 @@ export default function AdminDashboard() {
           )}
           {/* Inventory and Analytics remain the same as your source */}
 
-          {activeTab === 'all management' && (
-        <div className="p-6 max-w-7xl mx-auto">
-          {/* Header Section */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg">
-                  <Truck className="text-white" size={28} />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-800">Delivery Management</h2>
-                  <p className="text-gray-600 mt-1">Track and manage all active deliveries</p>
+          {activeTab === "all management" && (
+            <div className="p-6 max-w-7xl mx-auto">
+              {/* Header Section */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg">
+                      <Truck className="text-white" size={28} />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold text-gray-800">
+                        Delivery Management
+                      </h2>
+                      <p className="text-gray-600 mt-1">
+                        Track and manage all active deliveries
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-white px-6 py-3 rounded-xl shadow-md border border-gray-200">
+                    <div className="text-sm text-gray-600">Current Session</div>
+                    <div className="text-xl font-bold text-blue-600">
+                      {new Date().toLocaleDateString()}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="bg-white px-6 py-3 rounded-xl shadow-md border border-gray-200">
-                  
-                <div className="text-sm text-gray-600">Current Session</div>
-                <div className="text-xl font-bold text-blue-600">{new Date().toLocaleDateString()}</div>
-              
-              </div>
-              
-            </div>
-          </div>
 
-          {/* Delivery Boys Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            {deliveryBoys.map(boy => (
-              <div key={boy.id} className="bg-white p-4 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-green-400 to-blue-500 p-2 rounded-lg">
-                    <User className="text-white" size={20} />
+              {/* Delivery Boys Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                {deliveryBoys.map((boy) => (
+                  <div
+                    key={boy.id}
+                    className="bg-white p-4 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="bg-gradient-to-br from-green-400 to-blue-500 p-2 rounded-lg">
+                        <User className="text-white" size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-800">
+                          {boy.name}
+                        </div>
+                        <div className="text-xs text-gray-500">{boy.phone}</div>
+                      </div>
+                      <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
+                        {boy.activeDeliveries}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-800">{boy.name}</div>
-                    <div className="text-xs text-gray-500">{boy.phone}</div>
-                  </div>
-                  <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
-                    {boy.activeDeliveries}
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Orders Table */}
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
-                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                      <div className="flex items-center gap-2">
-                        <User size={16} />
-                        Customer
-                      </div>
-                    </th>
-                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                      <div className="flex items-center gap-2">
-                        <Phone size={16} />
-                        Contact
-                      </div>
-                    </th>
-                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                      <div className="flex items-center gap-2">
-                        <Package size={16} />
-                        Amount
-                      </div>
-                    </th>
-                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                      <div className="flex items-center gap-2">
-                        <CreditCard size={16} />
-                        Payment
-                      </div>
-                    </th>
-                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                      <div className="flex items-center gap-2">
-                        <Truck size={16} />
-                        Delivery Boy
-                      </div>
-                    </th>
-                    <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                      <div className="flex items-center gap-2">
-                        <Clock size={16} />
-                        Status
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {inventory.map((item, index) => {
-                   
-                    return (
-                      <tr 
-                        key={item.id} 
-                        className={`border-b hover:bg-blue-50 transition-colors ${
-                          index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                        }`}
-                      >
-                        <td className="py-4 px-4">
-                          <div className="font-semibold text-gray-800">{item.customerName}</div>
-                          <div className="text-xs text-gray-500">{item.time}</div>
-                          <div className="text-xs text-gray-500">{item.Date}</div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-2 text-gray-700">
-                            <Phone size={14} className="text-gray-400" />
-                            {item.phone}
+              {/* Orders Table */}
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                          <div className="flex items-center gap-2">
+                            <User size={16} />
+                            Customer
                           </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="font-bold text-green-600 text-lg">
-                            ₹{item.total.toLocaleString()}
+                        </th>
+                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                          <div className="flex items-center gap-2">
+                            <Phone size={16} />
+                            Contact
                           </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="text-sm text-gray-600 mb-1">{item.paymentMethod}</div>
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold`}>
-                            <CheckCircle size={12} />
-                            {item.paymentStatus}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="relative">
-                            <select 
-                              
-                             
-                              className="appearance-none   bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg px-3 py-2 pr-8 font-semibold text-gray-800 cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                            >
-                              {deliveryBoys.map(boy => (
-                                <option className='' key={boy.id} value={boy.id}>
-                                  {boy.name}  
-                                  
-                                </option>
-                              ))}
-                            </select>
-                              </div>
-                         
-                        </td>
-                       <td className="py-5 px-6">
-                  <span className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm ${
-                    item.status === 'delivered' ? 'bg-green-600 text-white' : 
-                    item.status === 'cancelled' ? 'bg-blue-600 text-white' : 
-                    item.status==="assigned" ? 'bg-orange-500 text-white' :""
-                    
-
-                  }`}>
-                    {item.status}
-                  </span>
-                </td>
+                        </th>
+                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                          <div className="flex items-center gap-2">
+                            <Package size={16} />
+                            Amount
+                          </div>
+                        </th>
+                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                          <div className="flex items-center gap-2">
+                            <CreditCard size={16} />
+                            Payment
+                          </div>
+                        </th>
+                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                          <div className="flex items-center gap-2">
+                            <Truck size={16} />
+                            Delivery Boy
+                          </div>
+                        </th>
+                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                          <div className="flex items-center gap-2">
+                            <Clock size={16} />
+                            Status
+                          </div>
+                        </th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {inventory.map((item, index) => {
+                        return (
+                          <tr
+                            key={item.id}
+                            className={`border-b hover:bg-blue-50 transition-colors ${
+                              index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                            }`}
+                          >
+                            <td className="py-4 px-4">
+                              <div className="font-semibold text-gray-800">
+                                {item.customerName}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {item.time}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {item.Date}
+                              </div>
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="flex items-center gap-2 text-gray-700">
+                                <Phone size={14} className="text-gray-400" />
+                                {item.phone}
+                              </div>
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="font-bold text-green-600 text-lg">
+                                ₹{item.total.toLocaleString()}
+                              </div>
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="text-sm text-gray-600 mb-1">
+                                {item.paymentMethod}
+                              </div>
+                              <span
+                                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold`}
+                              >
+                                <CheckCircle size={12} />
+                                {item.paymentStatus}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="relative">
+                                <select className="appearance-none   bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg px-3 py-2 pr-8 font-semibold text-gray-800 cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                                  {deliveryBoys.map((boy) => (
+                                    <option
+                                      className=""
+                                      key={boy.id}
+                                      value={boy.id}
+                                    >
+                                      {boy.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </td>
+                            <td className="py-5 px-6">
+                              <span
+                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                                  item.status === "delivered"
+                                    ? "bg-green-600 text-white"
+                                    : item.status === "cancelled"
+                                      ? "bg-blue-600 text-white"
+                                      : item.status === "assigned"
+                                        ? "bg-orange-500 text-white"
+                                        : ""
+                                }`}
+                              >
+                                {item.status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          
-        </div>
-      )}
-
-          {activeTab === 'history' && (
+          {activeTab === "history" && (
             <div className="p-6">
               <div className="relative mb-8">
                 <Search
@@ -700,14 +716,14 @@ export default function AdminDashboard() {
 
               <div className="space-y-6">
                 {sortedOrders.map((order) =>
-                  order.status == 'delivered' || order.status == 'cancelled' ? (
+                  order.status == "delivered" || order.status == "cancelled" ? (
                     <div
                       key={order.time}
                       className="bg-white rounded-3xl shadow-md border overflow-hidden"
                     >
                       {/* Order Header */}
 
-                      <div className="flex items-center gap-3 m-2 bg-gradient-to-r from-green-50 to-green-100 p-2 rounded-xl border-l-4 border-green-500">
+                      <div className="flex items-center  gap-3 m-2 bg-gradient-to-r from-green-50 to-green-100 p-2 rounded-xl border-l-4 border-green-500">
                         <Calendar className="w-6 h-6 text-green-600" />
                         <div>
                           <h3 className="font-bold text-lg text-gray-800">
@@ -716,6 +732,7 @@ export default function AdminDashboard() {
                           <p className="text-xs text-gray-500">{order.time}</p>
                         </div>
                       </div>
+
                       <div className="p-6 pt-2 border-b flex justify-between items-center bg-gray-50">
                         <div className="flex items-center gap-4">
                           <span className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-lg">
@@ -724,9 +741,22 @@ export default function AdminDashboard() {
                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
                             {order.status}
                           </span>
-                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                              {order.deliveryBoyPhone ? `Assigned Delivery boy :-${order.deliveryBoyPhone}`:"Not Assign :-"}
-                            </span>
+                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
+                            {order.deliveryBoyPhone
+                              ? `Assigned Delivery boy :-${order.deliveryBoyPhone}`
+                              : "Not Assign :-"}
+                          </span>
+
+                          <span
+                            onClick={() => {
+                              setOrdersBill(order);
+                              setShowBillModal(true);
+                            }}
+                            className="flex items-center px-3 py-1 bg-yellow-100 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
+                          >
+                            <Eye size={18} />
+                            View Bill
+                          </span>
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-green-600">
@@ -789,13 +819,13 @@ export default function AdminDashboard() {
 
                       {/* ACTION BUTTONS */}
                       <div className="p-6 pt-0 flex gap-3">
-                        {order.status === 'delivered' && (
+                        {order.status === "delivered" && (
                           <div className="flex-1 text-center py-3 bg-gray-100 rounded-xl font-bold text-gray-500 border italic">
                             Order Closed
                           </div>
                         )}
 
-                        {order.status === 'cancelled' && (
+                        {order.status === "cancelled" && (
                           <div className="flex-1 text-center py-3 bg-gradient-to-r from-red-100 px-5 to-red-200 text-red-800 border rounded-xl font-bold italic">
                             Order Cancelled
                           </div>
@@ -808,7 +838,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {activeTab === 'cancelled' && (
+          {activeTab === "cancelled" && (
             <div className="p-6">
               <div className="relative mb-8">
                 <Search
@@ -826,7 +856,7 @@ export default function AdminDashboard() {
 
               <div className="space-y-6">
                 {sortedOrders.map((order) =>
-                  order.status == 'cancelled' ? (
+                  order.status == "cancelled" ? (
                     <div
                       key={order.id}
                       className="bg-white rounded-3xl shadow-md border overflow-hidden"
@@ -850,9 +880,11 @@ export default function AdminDashboard() {
                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
                             {order.status}
                           </span>
-                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                              {order.deliveryBoyPhone ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`:"Not Assign :-"}
-                            </span>
+                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
+                            {order.deliveryBoyPhone
+                              ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`
+                              : "Not Assign :-"}
+                          </span>
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-green-600">
@@ -915,7 +947,7 @@ export default function AdminDashboard() {
 
                       {/* ACTION BUTTONS */}
                       <div className="p-6 pt-0 flex gap-3">
-                        {order.status === 'cancelled' && (
+                        {order.status === "cancelled" && (
                           <div className="flex-1 text-center py-3 bg-gradient-to-r from-red-100 px-5 to-red-200 text-red-800 border rounded-xl font-bold italic">
                             Order Cancelled
                           </div>
@@ -928,8 +960,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-
-           {activeTab === 'assigned' && (
+          {activeTab === "assigned" && (
             <div className="p-6">
               <div className="relative mb-8">
                 <Search
@@ -947,7 +978,7 @@ export default function AdminDashboard() {
 
               <div className="space-y-6">
                 {sortedOrders.map((order) =>
-                   order.status=="assigned"||order.status=="delivering"  ? (
+                  order.status == "assigned" || order.status == "delivering" ? (
                     <div
                       key={order.id}
                       className="bg-white rounded-3xl shadow-md border overflow-hidden"
@@ -971,9 +1002,11 @@ export default function AdminDashboard() {
                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
                             {order.status}
                           </span>
-                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                              {order.deliveryBoyPhone ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`:"Not Assign :-"}
-                            </span>
+                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
+                            {order.deliveryBoyPhone
+                              ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`
+                              : "Not Assign :-"}
+                          </span>
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-green-600">
@@ -1036,23 +1069,22 @@ export default function AdminDashboard() {
 
                       {/* ACTION BUTTONS */}
                       <div className="p-6 pt-0 flex gap-3">
-                        {order.status === 'assigned' && (
-                            <button
-                              onClick={() =>
-                                updateOrderStatus(order.id, 'assigned')
-                              }
-                              className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700"
-                            >
-                              <i>Order Assigned</i>
-                            </button>
-                          )}
+                        {order.status === "assigned" && (
+                          <button
+                            onClick={() =>
+                              updateOrderStatus(order.id, "assigned")
+                            }
+                            className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700"
+                          >
+                            <i>Order Assigned</i>
+                          </button>
+                        )}
 
-                          {order.status === 'delivering' && (
-                            <button className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">
-                              Delivering,,,
-                            </button>
-                          )}
-                        
+                        {order.status === "delivering" && (
+                          <button className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700">
+                            Delivering,,,
+                          </button>
+                        )}
                       </div>
                     </div>
                   ) : null,
@@ -1082,13 +1114,13 @@ export default function AdminDashboard() {
                 <option value="">-- Choose Delivery Boy --</option>
                 {deliveryBoys.map((boy) =>
                   // Only Online Boys Visible For Assigned.
-                  boy.active == 'online' ? (
+                  boy.active == "online" ? (
                     <option key={boy.phone} value={boy.phone}>
-                      {boy.name} ({boy.phone}){' '}
-                      {boy.active == 'online' ? '🟢' : '⚪'}
+                      {boy.name} ({boy.phone}){" "}
+                      {boy.active == "online" ? "🟢" : "⚪"}
                     </option>
                   ) : (
-                    ''
+                    ""
                   ),
                 )}
               </select>
@@ -1119,7 +1151,6 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold text-green-700 flex items-center gap-2">
                 🚴 Create Delivery Boy
               </h2>
-             
             </div>
             <div className="space-y-4">
               <input
@@ -1167,6 +1198,111 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+     {showBillModal && ordersBill && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white w-full md:mx-10 rounded-2xl p-6 shadow-2xl relative">
+
+      {/* CLOSE BUTTON */}
+      <button
+        onClick={() => {
+          setShowBillModal(false);
+          setOrdersBill(null);
+        }}
+        className="absolute top-4 right-4 text-xl font-bold"
+      >
+        ✕
+      </button>
+
+      {/* BILL */}
+      <div key={idx} className="max-w-4xl mx-auto">
+         
+    <div ref={(el) => (billRefs.current[idx] = el)}>
+
+        <div className="text-center mb-4">
+          <h2 className="text-2xl font-bold">BHAKRI CENTER</h2>
+          <p>Address :- Shop No (08) Asavari Gate Closest</p>
+          <p><u>Contact Us</u> :- +91 1234567891</p>
+        </div>
+
+        <div className="flex justify-between mb-2">
+          <span className="font-semibold">
+            Customer Name: {ordersBill.customerName}
+            
+          </span>
+          <span className="text-sm text-black">
+            {ordersBill.Date}
+          </span>
+        </div>
+        <div className="mb-2">
+          <span className="font-semibold ">
+           Payment: {ordersBill.paymentMethod !== "COD" ? ordersBill.paymentMethod : "Scanner"}
+          </span>
+        
+        </div>
+
+        {/* ITEMS TABLE */}
+        <table className="w-full border border-gray-300 border-collapse text-sm mb-3">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border px-3 py-2 text-left">Items</th>
+              <th className="border px-3 py-2 text-right">Price (₹)</th>
+              <th className="border px-3 py-2 text-center">Qty</th>
+              <th className="border px-3 py-2 text-right">Total (₹)</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {ordersBill.items.map((item, i) => (
+              <tr key={i}>
+                <td className="border px-3 py-2">{item.name}</td>
+                <td className="border px-3 py-2 text-right">₹{item.price}</td>
+                <td className="border px-3 py-2 text-center">{item.qty}</td>
+                <td className="border px-3 py-2 text-right font-semibold">
+                  ₹{item.price * item.qty}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+
+          <tfoot>
+            <tr className="bg-gray-50">
+              <td colSpan="3" className="border px-3 py-2 text-right font-bold">
+                Grand Total
+              </td>
+              <td className="border px-3 py-2 text-right font-bold text-orange-600">
+                ₹{ordersBill.total}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+       
+
+       {/* BUTTONS (NOT PRINTED) */}
+                  <div className="flex gap-3 mt-3 print:hidden">
+                <button
+                  onClick={() =>
+                    handlePrint(() => billRefs.current[idx])
+                  }
+                  className="bg-green-500 text-white px-3 py-1 rounded cursor-pointer"
+                >
+                  PRINT / PDF
+                </button>
+
+                {/* <button
+                  onClick={() => deleteBill(idx)}
+                  className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
+                >
+                  DELETE
+                </button> */}
+              </div>
+      
     </div>
-  )
+    </div>
+  </div>
+)}
+
+    </div>
+  );
 }
