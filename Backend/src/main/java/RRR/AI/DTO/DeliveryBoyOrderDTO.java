@@ -8,7 +8,7 @@ public class DeliveryBoyOrderDTO {
     private String status;
     private double deliveryCharge;    // optional if needed
     private String paymentMethod;     // optional
-    private Double total;
+    private int total;
     private String orderDate;
 
     private String customerName;
@@ -24,7 +24,7 @@ public class DeliveryBoyOrderDTO {
 
     // Constructor
     public DeliveryBoyOrderDTO(String orderNumber, String status, double deliveryCharge,
-                               String paymentMethod, Double total, String orderDate,
+                               String paymentMethod, int total, String orderDate,
                                String customerName, String customerPhone,
                                String customerAddress, String customerCity,
                                String customerPincode, List<OrderItemDTO> items) {
@@ -75,11 +75,11 @@ public class DeliveryBoyOrderDTO {
         this.paymentMethod = paymentMethod;
     }
 
-    public Double getTotal() {
+    public int getTotal() {
         return total;
     }
 
-    public void setTotal(Double total) {
+    public void setTotal(int total) {
         this.total = total;
     }
 

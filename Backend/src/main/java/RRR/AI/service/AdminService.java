@@ -2,8 +2,10 @@ package RRR.AI.service;
 
 import RRR.AI.DTO.AdminOrderDTO;
 import RRR.AI.DTO.OrderItemDTO;
-import RRR.AI.entity.Order;
+import RRR.AI.entity.Orders;
 import RRR.AI.repository.OrderRepository;
+
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,9 +13,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
-
+    
+ 
     private final OrderRepository orderRepository;
-
+    
+    //Admin service depends on the OrderRepository class
     public AdminService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
@@ -23,7 +27,7 @@ public class AdminService {
     }
 
     public AdminOrderDTO updateOrderStatus(String orderNumber, String status) {
-        Order order = orderRepository.findByOrderNumber(orderNumber)
+        Orders order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         order.setDeliveryStatus(status);
         orderRepository.save(order);
@@ -32,13 +36,15 @@ public class AdminService {
     
 
 
-    private AdminOrderDTO mapToDTO(Order order) {
+    private AdminOrderDTO mapToDTO(Orders order) {
         AdminOrderDTO dto = new AdminOrderDTO();
         dto.setOrderNumber(order.getOrderNumber());
         dto.setStatus(order.getDeliveryStatus());
         dto.setDeliveryCharge(order.getDeliveryCharge());
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setTotal(order.getTotal());
+         dto.setPaymentStatus(order.getPaymentStatus());
+
         dto.setOrderDate(order.getOrderDate().toString());
         dto.setDeliveryBoyPhone(order.getDeliveryBoyPhone());
         dto.setCustomerName(order.getCustomer().getName());
@@ -47,7 +53,7 @@ public class AdminService {
         dto.setCustomerAddress(order.getCustomer().getAddress());
         dto.setCustomerCity(order.getCustomer().getCity());
         dto.setCustomerPincode(order.getCustomer().getPincode());
-
+       
         List<OrderItemDTO> items = order.getItems().stream()
                  .map(item -> new OrderItemDTO(
                     item.getProductId(),

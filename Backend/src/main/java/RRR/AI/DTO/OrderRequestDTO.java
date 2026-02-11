@@ -10,7 +10,7 @@ public class OrderRequestDTO {
 
     private double subtotal;
     private double deliveryCharge;
-    private double total;
+    private int total;
 
     private String paymentMethod;
     private String deliveryStatus;
@@ -70,11 +70,11 @@ public class OrderRequestDTO {
     }
 
     /* ================= Total ================= */
-    public double getTotal() {
+    public int getTotal() {
         return total;
     }
 
-    public void setTotal(double total) {
+    public void setTotal(int total) {
         this.total = total;
     }
 

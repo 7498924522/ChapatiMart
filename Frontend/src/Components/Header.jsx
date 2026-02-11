@@ -50,6 +50,8 @@ function Header() {
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("jwtToken");
+    console.log("Token removed");
     localStorage.removeItem("chapatiCart");
     
     setEmail("");
@@ -140,7 +142,7 @@ function Header() {
                       <User size={16} className="text-gray-500" />
                       My Profile
                     </button>
-                    <button onClick={()=>navigate("/cart")} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-green-50 transition-colors flex items-center gap-3">
+                    <button onClick={()=>navigate("/myorders")} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-green-50 transition-colors flex items-center gap-3">
                       <ShoppingCart size={16} className="text-gray-500" />
                       My Orders
                     </button>
@@ -215,7 +217,7 @@ function Header() {
                 <User size={18} className="text-gray-500" />
                 My Profile
               </button>
-              <button className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-green-50 rounded-lg transition-colors flex items-center gap-3">
+              <button onClick={()=>navigate("/myorders")} className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-green-50 rounded-lg transition-colors flex items-center gap-3">
                 <ShoppingCart size={18} className="text-gray-500" />
                 My Orders
               </button>

@@ -8,7 +8,7 @@ import RRR.AI.DTO.DeliveryBoyOrderDTO;
 import RRR.AI.DTO.OrderItemDTO;
 import RRR.AI.entity.Customer;
 import RRR.AI.entity.DeliveryBoy;
-import RRR.AI.entity.Order;
+import RRR.AI.entity.Orders;
 import RRR.AI.repository.DeliveryBRepository;
 import RRR.AI.repository.OrderRepository;
 
@@ -54,7 +54,7 @@ public class DeliveryBoyService {
 
      public List<DeliveryBoyOrderDTO> getOrdersForDeliveryBoy(String phone) {
 
-        List<Order> orders = orderRepository.findByDeliveryBoyPhone(phone);
+        List<Orders> orders = orderRepository.findByDeliveryBoyPhone(phone);
 
         return orders.stream().map(order -> {
 

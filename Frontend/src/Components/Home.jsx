@@ -44,9 +44,6 @@ export default function Home() {
     })
     .filter(Boolean);
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
   
 
  
@@ -262,12 +259,12 @@ const categories = [
   { id: 1, name: "Wheat Flour", desc: "Premium Quality", image: flour },
   { id: 2, name: "Chapatis", desc: "Freshly Made", image: chapati },
   { id: 3, name: "Puran Poli", desc: "Traditional Taste", image: Puranpoli },
-  // { id: 4, name: "Water Bottles", desc: "RO Purified", image: bottel },
-  { id: 5, name: "Wheat", desc: "Pure", image: Gahu },
-  { id: 6, name: "Rice Chapati", desc: "Tasty", image: R },
-  { id: 7, name: "Toor Dal", desc: "Fresh & Pure", image: T },
-  { id: 8, name: "(GRAM)Harabhara", desc: "Daily Needs", image: H},
-  { id: 9, name: "Bhakari", desc:"Strong", image: Bhakari }
+
+  { id: 4, name: "Wheat", desc: "Pure", image: Gahu },
+  { id: 5, name: "Rice Chapati", desc: "Tasty", image: R },
+  { id: 6, name: "Toor Dal", desc: "Fresh & Pure", image: T },
+  { id: 7, name: "(GRAM)Harabhara", desc: "Daily Needs", image: H},
+  { id: 8, name: "Bhakari", desc:"Strong", image: Bhakari }
 
 ];
 
@@ -281,7 +278,7 @@ const popularItems = [
   { id: "P001", name: "Wheat Chapati", price: 10, oldprice: 15, route:"/chapati", image: chapati },
   { id: "P002", name: "Wheat Flour (1kg)", price: 20, oldprice: 25,route:"/flour", image: flour },
   { id: "P003", name: "Wheat", price: 15, oldprice: 20,  route:"/gahu", image: Gahu },
-  // { id: "P004", name: "Water Bottle (20L)", price: 20, oldprice: 25, image: bottel },
+ 
  
 ];
 

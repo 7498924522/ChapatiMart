@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Lock, User, ArrowRight, ShoppingCart, Eye, EyeOff, Shield, Package } from "lucide-react";
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Login() {
-  const navigate=useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+const from = location.state?.from?.pathname || "/home";
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({
     username: "",
@@ -20,18 +23,26 @@ export default function Login() {
         username: loginData.username,
         password: loginData.password,
       });
-      alert(res.data);
-      if (res.data === "Login successful!") {
-        localStorage.setItem("loggedInUser", loginData.username);
-        navigate("/home");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Login failed: " + (error.response?.data || error.message));
+      const token = res.data.token;
+
+    if (token) {
+      
+console.log(token); // or your key name
+
+      localStorage.setItem("jwtToken", token);
+      localStorage.setItem("loggedInUser", loginData.username);
+
+      alert("Login successful!");
+      navigate(from, { replace: true });
+    } else {
+      alert("Login failed: No token received");
     }
-    
-    alert(`Login attempt\nUsername: ${loginData.username}`);
-  };
+
+  } catch (error) {
+    console.error(error);
+    alert("Login failed: " + (error.response?.data || error.message));
+  }
+};
 
   const handleAdminLogin = () => {
     // Navigate to admin login or set admin mode
@@ -114,7 +125,8 @@ export default function Login() {
                 {/* Username / Email */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">
-                    Username or Email or  <a href='/Phone_login' className='text-orange-400 underline font-bold'>Phone Number</a>
+                    Username or Email  
+                    {/* <a href='/Phone_login' className='text-orange-400 underline font-bold'>Phone Number</a> */}
                   </label>
                   <div className="relative group">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-600 transition-colors" size={20} />

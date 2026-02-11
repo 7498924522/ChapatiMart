@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import RRR.AI.entity.Order;
+import RRR.AI.entity.Orders;
 import RRR.AI.DTO.DeliveryBoyOrderDTO;
 import RRR.AI.entity.DeliveryBoy;
 import RRR.AI.repository.DeliveryBRepository;

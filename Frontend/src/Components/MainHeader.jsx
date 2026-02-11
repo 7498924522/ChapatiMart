@@ -20,7 +20,7 @@ function MainHeader() {
 
         {/* Desktop Links (Hidden on Mobile) */}
         <div className="hidden md:flex items-center gap-8">
-           <a href="/home" className="text-sm hover:underline font-semibold text-gray-600 hover:text-green-700 transition">Home</a>
+           <a onClick={()=> {alert ("Login First"); navigate("/login")}} className="text-sm cursor-pointer hover:underline font-semibold text-gray-600 hover:text-green-700 transition">Home</a>
        
           <a href="#features" className="text-sm hover:underline font-semibold text-gray-600 hover:text-green-700 transition">Features</a>
           <a href="#about" className="text-sm font-semibold hover:underline text-gray-600 hover:text-green-700 transition">About</a>

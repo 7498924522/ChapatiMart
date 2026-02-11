@@ -28,63 +28,50 @@ public class UserController {
 
   
 
-    // Login
-    @PostMapping("/login")
-    public String login(@RequestBody User user) {
-
-        boolean isValid = userService.login(user.getUsername(), user.getPassword());
-        // username field will contain either email or username
-
-        if (isValid) {
-            return "Login successful!";
-        } else {
-            return "Invalid username/email or password!";
-        }
-    }
-
+    
    /* =========================
        SEND OTP
     ========================= */
-    @PostMapping("/send-otp")
-    public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> payload) {
-        try {
-            String phone = payload.get("phone");
-            if (phone == null || phone.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Phone number is required"));
-            }
+    // @PostMapping("/send-otp")
+    // public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> payload) {
+    //     try {
+    //         String phone = payload.get("phone");
+    //         if (phone == null || phone.isEmpty()) {
+    //             return ResponseEntity.badRequest().body(Map.of("message", "Phone number is required"));
+    //         }
 
-            userService.sendOrResendOtp(phone);
-            return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
-        }
-    }
+    //         userService.sendOrResendOtp(phone);
+    //         return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
+    //     }
+    // }
 
     /* =========================
        VERIFY OTP
     ========================= */
-    @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> payload) {
-        try {
-            String phone = payload.get("phone");
-            String otp = payload.get("otp");
+    // @PostMapping("/verify-otp")
+    // public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> payload) {
+    //     try {
+    //         String phone = payload.get("phone");
+    //         String otp = payload.get("otp");
 
-            if (phone == null || otp == null || phone.isEmpty() || otp.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Phone and OTP are required"));
-            }
+    //         if (phone == null || otp == null || phone.isEmpty() || otp.isEmpty()) {
+    //             return ResponseEntity.badRequest().body(Map.of("message", "Phone and OTP are required"));
+    //         }
 
-            boolean verified = userService.verifyOtp(phone, otp);
+    //         boolean verified = userService.verifyOtp(phone, otp);
 
-            if (!verified) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid OTP or expired"));
-            }
+    //         if (!verified) {
+    //             return ResponseEntity.badRequest().body(Map.of("message", "Invalid OTP or expired"));
+    //         }
 
-            // You can return user info after successful OTP verification
-            User user = userService.getUserByPhone(phone);
+    //         // You can return user info after successful OTP verification
+    //         User user = userService.getUserByPhone(phone);
 
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
-        }
-    }
+    //         return ResponseEntity.ok(user);
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(500).body(Map.of("message", e.getMessage()));
+    //     }
+    // }
 }

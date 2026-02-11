@@ -12,9 +12,12 @@ import {
   ShoppingBag,
   IndianRupee,
   History,
-  Calendar
+  Calendar,
+  ArrowLeftFromLine
 } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function DeliveryDashboard() {
   const phone = localStorage.getItem("deliveryBoyPhone");
@@ -22,6 +25,9 @@ export default function DeliveryDashboard() {
   const [active, setActive] = useState(false);
   const [orders, setOrders] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const navigate=useNavigate();
+
+  
 
   /* =======================
      FETCH ORDERS
@@ -156,7 +162,22 @@ export default function DeliveryDashboard() {
       delivered: "bg-emerald-50 text-emerald-700 border border-emerald-200"
     }[status] || "bg-gray-50 text-gray-700 border border-gray-200");
 
-  
+  const CheckingActiveMode=localStorage.getItem("deliveryActive");
+     
+  const LogOut=()=>
+  {
+       if(CheckingActiveMode == "true")
+      {
+            toast.error("You Are Online Please Change Status");
+            return 0;
+      }
+      else
+      {
+          toast.success("Log Out Successfully !");
+          navigate("/");
+          
+      }
+  }
  
 
   /* =======================
@@ -169,12 +190,16 @@ export default function DeliveryDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
-                <Truck className="w-7 h-7" />
-              </div>
+
+             <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                <ArrowLeftFromLine onClick={LogOut} className="w-7 h-7" />
+              </div> 
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">ChapatiMart Delivery</h1>
                 <p className="text-white text-sm font-medium">📞{phone}</p>
+              </div>
+              <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                <Truck className="w-7 h-7" />
               </div>
             </div>
 

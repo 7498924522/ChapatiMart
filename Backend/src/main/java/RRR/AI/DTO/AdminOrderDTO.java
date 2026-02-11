@@ -8,7 +8,7 @@ public class AdminOrderDTO {
     private String status;
     private double deliveryCharge;
     private String paymentMethod;
-    private Double total;
+    private int total;
     private String orderDate;
    private String deliveryBoyPhone;
     private String customerName;
@@ -17,6 +17,7 @@ public class AdminOrderDTO {
     private String customerAddress;
     private String customerCity;
     private String customerPincode;
+    private String PaymentStatus;
 
     private List<OrderItemDTO> items;
 
@@ -24,7 +25,7 @@ public class AdminOrderDTO {
     public AdminOrderDTO() {}
 
     // Constructor with all fields
-    public AdminOrderDTO(String orderNumber, String status,double deliveryCharge, String paymentMethod, Double total, String orderDate,
+    public AdminOrderDTO(String orderNumber, String status,double deliveryCharge, String paymentMethod, int total,String PaymentStatus, String orderDate,
                         String deliveryBoyPhone,String customerName, String customerPhone, String customerEmail, String customerAddress,
                          String customerCity, String customerPincode, List<OrderItemDTO> items) {
         this.orderNumber = orderNumber;
@@ -32,6 +33,7 @@ public class AdminOrderDTO {
         this.deliveryCharge=deliveryCharge;
         this.paymentMethod = paymentMethod;
         this.total = total;
+        this.PaymentStatus=PaymentStatus;
         this.orderDate = orderDate;
         this.deliveryBoyPhone=deliveryBoyPhone;
         this.customerName = customerName;
@@ -40,6 +42,7 @@ public class AdminOrderDTO {
         this.customerAddress = customerAddress;
         this.customerCity = customerCity;
         this.customerPincode = customerPincode;
+        
         this.items = items;
     }
 
@@ -76,11 +79,11 @@ public class AdminOrderDTO {
         this.paymentMethod = paymentMethod;
     }
 
-    public Double getTotal() {
+    public int getTotal() {
         return total;
     }
 
-    public void setTotal(Double total) {
+    public void setTotal(int total) {
         this.total = total;
     }
 
@@ -91,6 +94,9 @@ public class AdminOrderDTO {
     public void setOrderDate(String orderDate) {
         this.orderDate = orderDate;
     }
+     public String getPaymentStatus() { return PaymentStatus; }
+    public void setPaymentStatus(String PaymentStatus) {this.PaymentStatus=PaymentStatus; }
+    
     public String getDeliveryBoyPhone() 
     { return deliveryBoyPhone; }
 

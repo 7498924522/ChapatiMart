@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Package,
   Truck,
@@ -18,11 +18,14 @@ import {
   ShoppingCart,
   Edit,
   Trash2,
-  Plus,
+  CircleCheckBig,
   Search,
   UserPlus,
   Calendar,
   User,
+  ArrowLeftToLine,
+  Menu,
+  X,
 } from "lucide-react";
 import axios from "axios";
 import { useReactToPrint } from "react-to-print";
@@ -31,22 +34,20 @@ import { useNavigate } from "react-router-dom";
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const billRefs = useRef(null);
-   const handlePrint = useReactToPrint({
-  contentRef: billRefs,
-  documentTitle: "Order Bill",
-});
+  const handlePrint = useReactToPrint({
+    contentRef: billRefs,
+    documentTitle: "Order Bill",
+  });
   const [activeTab, setActiveTab] = useState("orders");
 
   // Delivery States
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [showBillModal, setShowBillModal] = useState(false);
-  const [ordersBill,setOrdersBill]=useState(null);
+  const [ordersBill, setOrdersBill] = useState(null);
   const [showAssignModal, setShowAssignModal] = useState(false); // Pop Up for the assign boy
   const [deliveryBoys, setDeliveryBoys] = useState([]);
-  const [assigningOrder, setAssigningOrder] = useState(null); // The order currently being assigned
+  const [assigningOrder, setAssigningOrder] = useState(null);
   const [selectedBoy, setSelectedBoy] = useState("");
-
- 
 
   const [deliveryForm, setDeliveryForm] = useState({
     name: "",
@@ -58,7 +59,9 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sidebar, setsidebar] = useState(false);
 
+  const [cancellingOrder, setCancellingOrder] = useState(null);
   useEffect(() => {
     fetchOrders();
     fetchDeliveryBoys();
@@ -95,6 +98,7 @@ export default function AdminDashboard() {
             price: i.price,
           })) || [],
         total: order.total,
+        Payment_Status: order.paymentStatus,
         status: order.status ?? "PENDING",
         DeliveryCharge: order.deliveryCharge,
 
@@ -218,21 +222,55 @@ export default function AdminDashboard() {
               <p className="text-sm text-gray-500">Shop Owner Dashboard</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span
-              className="mr-5 hover:underline  cursor-pointer flex items-center gap-1 text-green-700 font-medium"
-              onClick={() => navigate("/deliveryB_list")}
-            >
-              <Eye size={18} />
-              Delivery Boys
-            </span>
-            <span
-              className="mr-5 hover:underline cursor-pointer flex items-center gap-1 text-green-700 font-medium"
-              onClick={() => setShowDeliveryModal(true)}
-            >
-              <UserPlus size={18} /> Add Delivery Boy
-            </span>
-            <span className="text-sm font-semibold text-black">
+          <div className="lg:block hidden">
+            <div className="flex items-center gap-4 ">
+              <span
+                className="mr-5 hover:underline  cursor-pointer flex items-center gap-1 text-green-700 font-medium"
+                onClick={() => navigate("/deliveryB_list")}
+              >
+                <Eye size={18} />
+                Delivery Boys
+              </span>
+              <span
+                className="mr-5 hover:underline cursor-pointer flex items-center gap-1 text-green-700 font-medium"
+                onClick={() => setShowDeliveryModal(true)}
+              >
+                <UserPlus size={18} /> Add Delivery Boy
+              </span>
+              <span className="text-sm font-semibold text-black">
+                {new Date().toLocaleDateString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  weekday: "long",
+                })}
+              </span>
+              <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                <Users size={20} className="text-green-700" />
+              </div>
+            </div>
+          </div>
+          <div className="h-10 w-10 bg-green-100 rounded-sm flex items-center justify-center md:hidden">
+            {sidebar ? (
+              <X
+                onClick={() => setsidebar(false)}
+                size={20}
+                className="text-green-700"
+              />
+            ) : (
+              <Menu
+                onClick={() => setsidebar(true)}
+                size={20}
+                className="text-green-700"
+              />
+            )}
+          </div>
+        </div>
+      </header>
+      {sidebar && (
+        <div className="absolute top-20 right-0 w-full bg-white  shadow-xl  z-50 border border-gray-100 md:hidden animate-in slide-in-from-top-5 duration-200">
+          <div className="flex flex-col gap-4 items-end shadow-2xs py-5">
+            <span className="text-sm font-semibold text-black p-2 shadow-2xs ">
               {new Date().toLocaleDateString("en-IN", {
                 day: "2-digit",
                 month: "short",
@@ -240,12 +278,25 @@ export default function AdminDashboard() {
                 weekday: "long",
               })}
             </span>
-            <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
-              <Users size={20} className="text-green-700" />
-            </div>
+
+            <span
+              className="hover:underline cursor-pointer flex items-center p-2 shadow-2xs gap-1  text-green-700 font-medium"
+              onClick={() => navigate("/deliveryB_list")}
+            >
+              <Eye size={18} />
+              Delivery Boys
+            </span>
+
+            <span
+              className="hover:underline cursor-pointer flex items-center gap-1 shadow-2xs p-2   text-green-700 font-medium"
+              onClick={() => setShowDeliveryModal(true)}
+            >
+              <UserPlus size={18} />
+              Add Delivery Boy
+            </span>
           </div>
         </div>
-      </header>
+      )}
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Stats Cards */}
@@ -295,18 +346,12 @@ export default function AdminDashboard() {
 
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-md mb-6">
-          <div className="border-b px-6 flex gap-2">
-            {[
-              "orders",
-              "assigned",
-              "cancelled",
-              "history",
-              "all management",
-            ].map((tab) => (
+          <div className="border-b md:px-6 px-2 flex md:gap-2">
+            {["orders", "assigned", "cancelled", "history"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-6 py-4 font-semibold capitalize ${
+                className={`md:px-6 px-2 py-4 font-semibold capitalize ${
                   activeTab === tab
                     ? "border-b-2 border-green-600 text-green-700"
                     : "text-gray-500"
@@ -351,37 +396,65 @@ export default function AdminDashboard() {
                             <p className="text-xs text-gray-500">
                               {order.time}
                             </p>
-                          
                           </div>
                         </div>
-                        <div className="p-6 pt-2 border-b flex justify-between items-center bg-gray-50">
-                          <div className="flex items-center gap-4">
-                            <span className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-lg">
-                              #{order.id}
-                            </span>
-                            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                              {order.status}
-                            </span>
-                            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                              {order.deliveryBoyPhone
-                                ? `Assigned Delivery boy :-${order.deliveryBoyPhone}`
-                                : "Not Assign :-"}
-                            </span>
-                             <span
-                            onClick={() => {
-                              setOrdersBill(order);
-                              setShowBillModal(true);
-                            }}
-                            className="flex items-center px-3 py-1 bg-yellow-100 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
-                          >
-                            <Eye size={18} />
-                            View Bill
-                          </span>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-green-600">
-                              Total :- ₹{order.total}
-                            </p>
+                        <div className="p-4 md:p-6 pt-3 border-b bg-gray-50">
+                          {/* TOP ROW */}
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            {/* LEFT SIDE */}
+                            <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 w-full">
+                              {/* ORDER ID */}
+                              <span className="bg-green-600 text-white px-4 py-2 md:w-70  rounded-xl font-bold text-sm md:text-lg">
+                                #{order.id}
+                              </span>
+
+                              {/* DETAILS */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 w-full">
+                                <span className="px-3 py-1 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg font-bold text-xs uppercase text-center">
+                                  {order.status}
+                                </span>
+
+                                <span className="px-3 py-1 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg font-bold text-xs uppercase text-center">
+                                  {order.deliveryBoyPhone
+                                    ? `Assigned: ${order.deliveryBoyPhone}`
+                                    : "Not Assigned :-"}
+                                </span>
+
+                                <span
+                                  onClick={() => {
+                                    setOrdersBill(order);
+                                    setShowBillModal(true);
+                                  }}
+                                  className="flex justify-center items-center gap-1 px-3 py-1 bg-yellow-100 border border-yellow-400 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
+                                >
+                                  <Eye size={16} />
+                                  View Bill
+                                </span>
+
+                                <div
+                                  className={`flex justify-center items-center gap-1 px-3 py-1 rounded-lg font-bold text-xs
+                                 ${
+                                order.Payment_Status === "PAID"
+                                ? "bg-green-100 text-green-800 border border-green-400"
+                                : "bg-yellow-100 text-yellow-800 border border-yellow-400"
+                                }`}
+                                >
+                                  {order.Payment_Status === "PAID" ? (
+                                    <CircleCheckBig className="size-4" />
+                                  ) : (
+                                    <Clock className="size-4" />
+                                  )}
+                                  {order.Payment_Status === "PAID"
+                                    ? "PAID"
+                                    : "PENDING"}
+                                </div>
+                                <div className="w-auto text-left md:text-center mt-1  md:mt-0">
+                                  <p className=" font-bold text-green-600">
+                                    Total :- ₹{order.total}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
 
@@ -393,7 +466,7 @@ export default function AdminDashboard() {
                             </h3>
                             <p className="font-bold">{order.customerName}</p>
                             <p className="text-sm text-gray-600">
-                              {order.phone}
+                              📞 {order.phone}
                             </p>
 
                             <p className="text-sm mt-2 flex gap-1">
@@ -507,9 +580,7 @@ export default function AdminDashboard() {
                           {order.status === "PENDING" && (
                             <div className=" bg-gradient-to-r from-red-100 px-5 to-red-200 text-red-800 py-4 rounded-xl font-bold flex items-center justify-center gap-2 border-2 border-red-300">
                               <XCircle
-                                onClick={() =>
-                                  updateOrderStatus(order.id, "cancelled")
-                                }
+                                onClick={() => setCancellingOrder(order)}
                                 className="w-5 h-5"
                               />
                             </div>
@@ -519,185 +590,6 @@ export default function AdminDashboard() {
                     </div>
                   ) : null,
                 )}
-              </div>
-            </div>
-          )}
-          {/* Inventory and Analytics remain the same as your source */}
-
-          {activeTab === "all management" && (
-            <div className="p-6 max-w-7xl mx-auto">
-              {/* Header Section */}
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg">
-                      <Truck className="text-white" size={28} />
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-bold text-gray-800">
-                        Delivery Management
-                      </h2>
-                      <p className="text-gray-600 mt-1">
-                        Track and manage all active deliveries
-                      </p>
-                    </div>
-                  </div>
-                  <div className="bg-white px-6 py-3 rounded-xl shadow-md border border-gray-200">
-                    <div className="text-sm text-gray-600">Current Session</div>
-                    <div className="text-xl font-bold text-blue-600">
-                      {new Date().toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Delivery Boys Summary */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                {deliveryBoys.map((boy) => (
-                  <div
-                    key={boy.id}
-                    className="bg-white p-4 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="bg-gradient-to-br from-green-400 to-blue-500 p-2 rounded-lg">
-                        <User className="text-white" size={20} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-800">
-                          {boy.name}
-                        </div>
-                        <div className="text-xs text-gray-500">{boy.phone}</div>
-                      </div>
-                      <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
-                        {boy.activeDeliveries}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Orders Table */}
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
-                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                          <div className="flex items-center gap-2">
-                            <User size={16} />
-                            Customer
-                          </div>
-                        </th>
-                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                          <div className="flex items-center gap-2">
-                            <Phone size={16} />
-                            Contact
-                          </div>
-                        </th>
-                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                          <div className="flex items-center gap-2">
-                            <Package size={16} />
-                            Amount
-                          </div>
-                        </th>
-                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                          <div className="flex items-center gap-2">
-                            <CreditCard size={16} />
-                            Payment
-                          </div>
-                        </th>
-                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                          <div className="flex items-center gap-2">
-                            <Truck size={16} />
-                            Delivery Boy
-                          </div>
-                        </th>
-                        <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                          <div className="flex items-center gap-2">
-                            <Clock size={16} />
-                            Status
-                          </div>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {inventory.map((item, index) => {
-                        return (
-                          <tr
-                            key={item.id}
-                            className={`border-b hover:bg-blue-50 transition-colors ${
-                              index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                            }`}
-                          >
-                            <td className="py-4 px-4">
-                              <div className="font-semibold text-gray-800">
-                                {item.customerName}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {item.time}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {item.Date}
-                              </div>
-                            </td>
-                            <td className="py-4 px-4">
-                              <div className="flex items-center gap-2 text-gray-700">
-                                <Phone size={14} className="text-gray-400" />
-                                {item.phone}
-                              </div>
-                            </td>
-                            <td className="py-4 px-4">
-                              <div className="font-bold text-green-600 text-lg">
-                                ₹{item.total.toLocaleString()}
-                              </div>
-                            </td>
-                            <td className="py-4 px-4">
-                              <div className="text-sm text-gray-600 mb-1">
-                                {item.paymentMethod}
-                              </div>
-                              <span
-                                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold`}
-                              >
-                                <CheckCircle size={12} />
-                                {item.paymentStatus}
-                              </span>
-                            </td>
-                            <td className="py-4 px-4">
-                              <div className="relative">
-                                <select className="appearance-none   bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg px-3 py-2 pr-8 font-semibold text-gray-800 cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                                  {deliveryBoys.map((boy) => (
-                                    <option
-                                      className=""
-                                      key={boy.id}
-                                      value={boy.id}
-                                    >
-                                      {boy.name}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            </td>
-                            <td className="py-5 px-6">
-                              <span
-                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm ${
-                                  item.status === "delivered"
-                                    ? "bg-green-600 text-white"
-                                    : item.status === "cancelled"
-                                      ? "bg-blue-600 text-white"
-                                      : item.status === "assigned"
-                                        ? "bg-orange-500 text-white"
-                                        : ""
-                                }`}
-                              >
-                                {item.status}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
               </div>
             </div>
           )}
@@ -737,37 +629,65 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
-                      <div className="p-6 pt-2 border-b flex justify-between items-center bg-gray-50">
-                        <div className="flex items-center gap-4">
-                          <span className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-lg">
-                            #{order.id}
-                          </span>
-                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                            {order.status}
-                          </span>
-                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                            {order.deliveryBoyPhone
-                              ? `Assigned Delivery boy :-${order.deliveryBoyPhone}`
-                              : "Not Assign :-"}
-                          </span>
+                      <div className="p-4 md:p-6 pt-3 border-b bg-gray-50">
+                          {/* TOP ROW */}
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            {/* LEFT SIDE */}
+                            <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 w-full">
+                              {/* ORDER ID */}
+                              <span className="bg-green-600 text-white px-4 py-2 md:w-70  rounded-xl font-bold text-sm md:text-lg">
+                                #{order.id}
+                              </span>
 
-                          <span
-                            onClick={() => {
-                              setOrdersBill(order);
-                              setShowBillModal(true);
-                            }}
-                            className="flex items-center px-3 py-1 bg-yellow-100 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
-                          >
-                            <Eye size={18} />
-                            View Bill
-                          </span>
+                              {/* DETAILS */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 w-full">
+                                <span className="px-3 py-1 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg font-bold text-xs uppercase text-center">
+                                  {order.status}
+                                </span>
+
+                                <span className="px-3 py-1 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg font-bold text-xs uppercase text-center">
+                                  {order.deliveryBoyPhone
+                                    ? `Assigned: ${order.deliveryBoyPhone}`
+                                    : "Not Assigned :-"}
+                                </span>
+
+                                <span
+                                  onClick={() => {
+                                    setOrdersBill(order);
+                                    setShowBillModal(true);
+                                  }}
+                                  className="flex justify-center items-center gap-1 px-3 py-1 bg-yellow-100 border border-yellow-400 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
+                                >
+                                  <Eye size={16} />
+                                  View Bill
+                                </span>
+
+                                <div
+                                  className={`flex justify-center items-center gap-1 px-3 py-1 rounded-lg font-bold text-xs
+                                 ${
+                                order.Payment_Status === "PAID" || order.status ==="delivered"
+                                ? "bg-green-100 text-green-800 border border-green-400"
+                                : "bg-yellow-100 text-yellow-800 border border-yellow-400"
+                                }`}
+                                >
+                                  {order.Payment_Status === "PAID" || order.status ==="delivered"  ? (
+                                    <CircleCheckBig className="size-4" />
+                                  ) : (
+                                    <Clock className="size-4" />
+                                  )}
+                                  {order.Payment_Status === "PAID" || order.status ==="delivered"
+                                    ? "PAID"
+                                    : "PENDING"}
+                                </div>
+                                <div className="w-auto text-left md:text-center mt-1  md:mt-0">
+                                  <p className=" font-bold text-green-600">
+                                    Total :- ₹{order.total}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-green-600">
-                            Total :- ₹{order.total}
-                          </p>
-                        </div>
-                      </div>
 
                       {/* Order Content */}
                       <div className="p-6 grid md:grid-cols-2 gap-6">
@@ -776,7 +696,7 @@ export default function AdminDashboard() {
                             Customer
                           </h3>
                           <p className="font-bold">{order.customerName}</p>
-                          <p className="text-sm text-gray-600">{order.phone}</p>
+                          <p className="text-sm text-gray-600">📞 {order.phone}</p>
                           <p className="text-sm mt-2 flex gap-1">
                             <MapPin size={14} /> {order.address}
                           </p>
@@ -876,36 +796,65 @@ export default function AdminDashboard() {
                           <p className="text-xs text-gray-500">{order.time}</p>
                         </div>
                       </div>
-                      <div className="p-6 pt-2 border-b flex justify-between items-center bg-gray-50">
-                        <div className="flex items-center gap-4">
-                          <span className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-lg">
-                            #{order.id}
-                          </span>
-                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                            {order.status}
-                          </span>
-                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                            {order.deliveryBoyPhone
-                              ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`
-                              : "Not Assign :-"}
-                          </span>
-                           <span
-                            onClick={() => {
-                              setOrdersBill(order);
-                              setShowBillModal(true);
-                            }}
-                            className="flex items-center px-3 py-1 bg-yellow-100 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
-                          >
-                            <Eye size={18} />
-                            View Bill
-                          </span>
+                      <div className="p-4 md:p-6 pt-3 border-b bg-gray-50">
+                          {/* TOP ROW */}
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            {/* LEFT SIDE */}
+                            <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 w-full">
+                              {/* ORDER ID */}
+                              <span className="bg-green-600 text-white px-4 py-2 md:w-70  rounded-xl font-bold text-sm md:text-lg">
+                                #{order.id}
+                              </span>
+
+                              {/* DETAILS */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 w-full">
+                                <span className="px-3 py-1 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg font-bold text-xs uppercase text-center">
+                                  {order.status}
+                                </span>
+
+                                <span className="px-3 py-1 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg font-bold text-xs uppercase text-center">
+                                  {order.deliveryBoyPhone
+                                    ? `Assigned: ${order.deliveryBoyPhone}`
+                                    : "Not Assigned :-"}
+                                </span>
+
+                                <span
+                                  onClick={() => {
+                                    setOrdersBill(order);
+                                    setShowBillModal(true);
+                                  }}
+                                  className="flex justify-center items-center gap-1 px-3 py-1 bg-yellow-100 border border-yellow-400 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
+                                >
+                                  <Eye size={16} />
+                                  View Bill
+                                </span>
+
+                                <div
+                                  className={`flex justify-center items-center gap-1 px-3 py-1 rounded-lg font-bold text-xs
+                                 ${
+                                order.Payment_Status === "PAID"
+                                ? "bg-green-100 text-green-800 border border-green-400"
+                                : "bg-yellow-100 text-yellow-800 border border-yellow-400"
+                                }`}
+                                >
+                                  {order.Payment_Status === "PAID" ? (
+                                    <CircleCheckBig className="size-4" />
+                                  ) : (
+                                    <Clock className="size-4" />
+                                  )}
+                                  {order.Payment_Status === "PAID"
+                                    ? "PAID"
+                                    : "PENDING"}
+                                </div>
+                                <div className="w-auto text-left md:text-center mt-1  md:mt-0">
+                                  <p className=" font-bold text-green-600">
+                                    Total :- ₹{order.total}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-green-600">
-                            Total :- ₹{order.total}
-                          </p>
-                        </div>
-                      </div>
 
                       {/* Order Content */}
                       <div className="p-6 grid md:grid-cols-2 gap-6">
@@ -914,7 +863,7 @@ export default function AdminDashboard() {
                             Customer
                           </h3>
                           <p className="font-bold">{order.customerName}</p>
-                          <p className="text-sm text-gray-600">{order.phone}</p>
+                          <p className="text-sm text-gray-600">📞 {order.phone}</p>
                           <p className="text-sm mt-2 flex gap-1">
                             <MapPin size={14} /> {order.address}
                           </p>
@@ -1008,37 +957,65 @@ export default function AdminDashboard() {
                           <p className="text-xs text-gray-500">{order.time}</p>
                         </div>
                       </div>
-                      <div className="p-6 pt-2 border-b flex justify-between items-center bg-gray-50">
-                        <div className="flex items-center gap-4">
-                          <span className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-lg">
-                            #{order.id}
-                          </span>
-                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                            {order.status}
-                          </span>
-                          <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs uppercase">
-                            {order.deliveryBoyPhone
-                              ? `Assigned Delivery boy :-  ${order.deliveryBoyPhone}`
-                              : "Not Assign :-"}
-                          </span>
+                      <div className="p-4 md:p-6 pt-3 border-b bg-gray-50">
+                          {/* TOP ROW */}
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            {/* LEFT SIDE */}
+                            <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 w-full">
+                              {/* ORDER ID */}
+                              <span className="bg-green-600 text-white px-4 py-2 md:w-70  rounded-xl font-bold text-sm md:text-lg">
+                                #{order.id}
+                              </span>
 
-                           <span
-                            onClick={() => {
-                              setOrdersBill(order);
-                              setShowBillModal(true);
-                            }}
-                            className="flex items-center px-3 py-1 bg-yellow-100 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
-                          >
-                            <Eye size={18} />
-                            View Bill
-                          </span>
+                              {/* DETAILS */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 w-full">
+                                <span className="px-3 py-1 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg font-bold text-xs uppercase text-center">
+                                  {order.status}
+                                </span>
+
+                                <span className="px-3 py-1 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg font-bold text-xs uppercase text-center">
+                                  {order.deliveryBoyPhone
+                                    ? `Assigned: ${order.deliveryBoyPhone}`
+                                    : "Not Assigned :-"}
+                                </span>
+
+                                <span
+                                  onClick={() => {
+                                    setOrdersBill(order);
+                                    setShowBillModal(true);
+                                  }}
+                                  className="flex justify-center items-center gap-1 px-3 py-1 bg-yellow-100 border border-yellow-400 cursor-pointer hover:underline text-yellow-800 rounded-lg font-bold text-xs uppercase"
+                                >
+                                  <Eye size={16} />
+                                  View Bill
+                                </span>
+
+                                <div
+                                  className={`flex justify-center items-center gap-1 px-3 py-1 rounded-lg font-bold text-xs
+                                 ${
+                                order.Payment_Status === "PAID"
+                                ? "bg-green-100 text-green-800 border border-green-400"
+                                : "bg-yellow-100 text-yellow-800 border border-yellow-400"
+                                }`}
+                                >
+                                  {order.Payment_Status === "PAID" ? (
+                                    <CircleCheckBig className="size-4" />
+                                  ) : (
+                                    <Clock className="size-4" />
+                                  )}
+                                  {order.Payment_Status === "PAID"
+                                    ? "PAID"
+                                    : "PENDING"}
+                                </div>
+                                <div className="w-auto text-left md:text-center mt-1  md:mt-0">
+                                  <p className=" font-bold text-green-600">
+                                    Total :- ₹{order.total}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-green-600">
-                            Total :- ₹{order.total}
-                          </p>
-                        </div>
-                      </div>
 
                       {/* Order Content */}
                       <div className="p-6 grid md:grid-cols-2 gap-6">
@@ -1047,7 +1024,7 @@ export default function AdminDashboard() {
                             Customer
                           </h3>
                           <p className="font-bold">{order.customerName}</p>
-                          <p className="text-sm text-gray-600">{order.phone}</p>
+                          <p className="text-sm text-gray-600">📞 {order.phone}</p>
                           <p className="text-sm mt-2 flex gap-1">
                             <MapPin size={14} /> {order.address}
                           </p>
@@ -1224,109 +1201,160 @@ export default function AdminDashboard() {
         </div>
       )}
 
-     {showBillModal && ordersBill && (
-  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white w-full md:mx-10 rounded-2xl p-6 shadow-2xl relative">
+      {cancellingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn">
+          {/* Modal Box */}
+          <div className="relative w-[380px] bg-white rounded-2xl shadow-2xl p-6 text-center animate-scaleIn">
+            {/* Close Icon */}
+            <button
+              onClick={() => setCancellingOrder(null)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl"
+            >
+              ✕
+            </button>
 
-      {/* CLOSE BUTTON */}
-      <button
-        onClick={() => {
-          setShowBillModal(false);
-          setOrdersBill(null);
-        }}
-        className="absolute top-4 right-4 text-xl font-bold"
-      >
-        ✕
-      </button>
+            {/* Warning Icon */}
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 flex items-center justify-center rounded-full bg-red-100 text-red-600 text-3xl">
+                ⚠
+              </div>
+            </div>
 
-      {/* BILL */}
-     
-      <div className="max-w-4xl mx-auto">
-         
-    <div ref={billRefs} className="p-2">
+            {/* Title */}
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">
+              Cancel Order?
+            </h2>
 
-        <div  className="text-center mb-4">
-          <h2 className="text-2xl font-bold">BHAKRI CENTER</h2>
-          <p>Address :- Shop No (08) Asavari Gate Closest</p>
-          <p><u>Contact Us</u> :- +91 1234567891</p>
+            {/* Description */}
+            <p className="text-gray-500 text-sm mb-6">
+              This action cannot be undone. The order will be permanently
+              cancelled.
+            </p>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setCancellingOrder(null)}
+                className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+              >
+                Keep Order
+              </button>
+
+              <button
+                onClick={() => {
+                  updateOrderStatus(cancellingOrder.id, "cancelled");
+                  setCancellingOrder(null);
+                }}
+                className="flex-1 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 active:scale-95 transition"
+              >
+                Yes, Cancel
+              </button>
+            </div>
+          </div>
         </div>
+      )}
 
-        <div className="flex justify-between mb-2">
-          <span className="font-semibold">
-            Customer Name: {ordersBill.customerName}
-            
-          </span>
-          <span className="text-sm text-black">
-            {ordersBill.Date}
-          </span>
-        </div>
-        <div className="flex justify-between mb-2">
-          <span className="font-semibold ">
-           Payment: {ordersBill.paymentMethod !== "COD" ? ordersBill.paymentMethod : "Scanner"}
-          </span>
-          <span className="text-sm text-black ">
-           Time: {ordersBill.time}
-          </span>
-        
-        </div>
+      {showBillModal && ordersBill && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full md:mx-10 rounded-2xl p-6 shadow-2xl relative">
+            {/* CLOSE BUTTON */}
+            <button
+              onClick={() => {
+                setShowBillModal(false);
+                setOrdersBill(null);
+              }}
+              className="absolute top-4 right-4 text-xl font-bold"
+            >
+              ✕
+            </button>
 
-        {/* ITEMS TABLE */}
-        <table className="w-full border border-gray-300 border-collapse text-sm mb-3">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border px-3 py-2 text-left">Items</th>
-              <th className="border px-3 py-2 text-right">Price (₹)</th>
-              <th className="border px-3 py-2 text-center">Qty</th>
-              <th className="border px-3 py-2 text-right">Total (₹)</th>
-            </tr>
-          </thead>
+            {/* BILL */}
 
-          <tbody>
-            {ordersBill.items.map((item, i) => (
-              <tr key={i}>
-                <td className="border px-3 py-2">{item.name}</td>
-                <td className="border px-3 py-2 text-right">₹{item.price}</td>
-                <td className="border px-3 py-2 text-center">{item.qty}</td>
-                <td className="border px-3 py-2 text-right font-semibold">
-                  ₹{item.price * item.qty}
-                </td>
-              </tr>
-            ))}
-          </tbody>
+            <div className="max-w-4xl mx-auto">
+              <div ref={billRefs} className="p-2">
+                <div className="text-center mb-4">
+                  <h2 className="text-2xl font-bold">BHAKRI CENTER</h2>
+                  <p>Address :- Shop No (08) Asavari Gate Closest</p>
+                  <p>
+                    <u>Contact Us</u> :- +91 1234567891
+                  </p>
+                </div>
 
-          <tfoot>
-            <tr className="bg-gray-50">
-              <td colSpan="3" className="border px-3 py-2 text-right font-bold">
-                Grand Total
-              </td>
-              <td className="border border-black px-3 py-2 text-right font-bold text-orange-600">
-                ₹{ordersBill.total}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-     
-       
+                <div className="flex justify-between mb-2">
+                  <span className="font-semibold">
+                    Customer Name: {ordersBill.customerName}
+                  </span>
+                  <span className="text-sm text-black">{ordersBill.Date}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span className="font-semibold ">
+                    Payment:{" "}
+                    {ordersBill.paymentMethod !== "COD"
+                      ? ordersBill.paymentMethod
+                      : "Scanner"}
+                  </span>
+                  <span className="text-sm text-black ">
+                    Time: {ordersBill.time}
+                  </span>
+                </div>
 
-       {/* BUTTONS (NOT PRINTED) */}
-                  <div className="flex gap-3 mt-3 print:hidden">
+                {/* ITEMS TABLE */}
+                <table className="w-full border border-gray-300 border-collapse text-sm mb-3">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border px-3 py-2 text-left">Items</th>
+                      <th className="border px-3 py-2 text-right">Price (₹)</th>
+                      <th className="border px-3 py-2 text-center">Qty</th>
+                      <th className="border px-3 py-2 text-right">Total (₹)</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {ordersBill.items.map((item, i) => (
+                      <tr key={i}>
+                        <td className="border px-3 py-2">{item.name}</td>
+                        <td className="border px-3 py-2 text-right">
+                          ₹{item.price}
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                          {item.qty}
+                        </td>
+                        <td className="border px-3 py-2 text-right font-semibold">
+                          ₹{item.price * item.qty}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+
+                  <tfoot>
+                    <tr className="bg-gray-50">
+                      <td
+                        colSpan="3"
+                        className="border px-3 py-2 text-right font-bold"
+                      >
+                        Grand Total
+                      </td>
+                      <td className="border border-black px-3 py-2 text-right font-bold text-orange-600">
+                        ₹{ordersBill.total}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              {/* BUTTONS (BILL PRINTOUT) */}
+              <div className="flex gap-3 mt-3 print:hidden">
                 <button
                   onClick={handlePrint}
                   className="bg-green-500 text-white px-3 py-1 rounded cursor-pointer"
                 >
                   PRINT / PDF
                 </button>
-
-                
               </div>
-              </div>
-      
-    </div>
-    </div>
- 
-)}
-
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

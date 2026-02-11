@@ -4,7 +4,7 @@ package RRR.AI.controller;
 import RRR.AI.DTO.AdminOrderDTO;
 import RRR.AI.repository.OrderRepository;
 import RRR.AI.service.AdminService;
-import RRR.AI.entity.Order;
+import RRR.AI.entity.Orders;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getAllOrders());
     }
 
-    //Order Vise Update Status confirmed ready
+    //Admin Update Order Vise  Status confirmed ready deliverind delivered
     @PutMapping("/{orderNumber}/status")
     public ResponseEntity<AdminOrderDTO> updateStatus(@PathVariable String orderNumber,
                                                       @RequestBody Map<String, String> body) {
@@ -45,7 +45,7 @@ public class AdminController {
     @PutMapping("/assign-order")
     public ResponseEntity<?> assignOrder(@RequestBody Map<String, String> req) {
 
-        Order order = orderRepo.findByOrderNumber(req.get("orderNumber"))
+        Orders order = orderRepo.findByOrderNumber(req.get("orderNumber"))
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         order.setDeliveryBoyPhone(req.get("deliveryBoyPhone"));

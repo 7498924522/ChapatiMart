@@ -8,6 +8,7 @@ public class CustomerDTO {
     private String address;
     private String city;
     private String pincode;
+    
 
     public String getName() {
         return name;
