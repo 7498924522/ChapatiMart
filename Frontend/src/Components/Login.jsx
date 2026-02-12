@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, User, ArrowRight, ShoppingCart, Eye, EyeOff, Shield, Package } from "lucide-react";
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
-
+// import { toast } from "react-toastify";
 export default function Login() {
   const location = useLocation();
   const navigate = useNavigate();
