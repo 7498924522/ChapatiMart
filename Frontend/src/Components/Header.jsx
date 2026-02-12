@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, User, ShoppingCart, LogOut, Menu, X } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
-
+import {toast} from "react-toastify";
 
 function Header() {
   const [cartCount, setCartCount] = useState(0);
@@ -57,7 +57,7 @@ function Header() {
     setEmail("");
     setCartCount(0);
     setShowUserMenu(false);
-    alert("Logged out successfully!");
+    toast.success("Logged out successfully!");
     navigate('/'); // Uncomment this when using with react-router
   };
 

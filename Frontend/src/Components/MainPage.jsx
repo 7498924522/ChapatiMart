@@ -6,14 +6,17 @@ import MainHeader from "./MainHeader";
 
 export default function MainPage() {
   const navigate = useNavigate();
+  const [PopUp,setPopUp]=useState(false);
   const [showMenu, setShowMenu] = useState(false); // New state for popup
   const FirstLogin=()=>
   {
-     const isOk=window.confirm("Login First,,,");
-     if(isOk)
-     {
-        navigate("/login")
-     }
+    //  const isOk=window.confirm("Please Login First");
+    //  if(isOk)
+    //  {
+    //     navigate("/login")
+    //  }
+
+    setPopUp(true)
   }
   const menuItems = [
     { name: "Wheat Chapati", price: "10", desc: "100% Whole Wheat" },
@@ -81,7 +84,11 @@ export default function MainPage() {
               </div>
 
               <button 
-                onClick={FirstLogin}
+                onClick={() => {
+             FirstLogin();
+             setShowMenu(false);
+            }}
+
                 className="w-full mt-10 bg-green-700 cursor-pointer text-white py-5 rounded-2xl font-bold hover:bg-green-800 transition-all shadow-xl shadow-green-100 flex items-center justify-center gap-3"
               >
                 Start Ordering Now <ArrowRight size={20} />
@@ -171,6 +178,44 @@ export default function MainPage() {
         </div>
       </div>
 
+
+      {PopUp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn">
+          {/* Modal Box */}
+          <div className="relative w-[380px] bg-white rounded-2xl shadow-2xl p-6 text-center animate-scaleIn">
+            {/* Close Icon */}
+            <button
+              onClick={() => setPopUp(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl"
+            >
+              ✕
+            </button>
+
+           <p className="text-2xl font-bold mb-10">Please Login First</p>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPopUp(false)}
+                className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+              >
+                Not Now
+              </button>
+
+              <button
+                onClick={() => {
+                  navigate("/login");
+                  setPopUp(false);
+                }}
+                className="flex-1 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 active:scale-95 transition"
+              >
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- FOOTER --- */}
       <footer className="bg-gray-900 text-white pt-20 pb-10">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -226,8 +271,12 @@ export default function MainPage() {
         </div>
       </footer>
     </div>
+    
+
+    
   );
 }
+
 
 const SocialIcon = ({ Icon }) => (
   <div className="p-2 rounded-full border border-gray-700 hover:bg-green-600 hover:border-green-600 transition cursor-pointer">

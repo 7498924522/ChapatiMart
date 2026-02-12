@@ -30,6 +30,7 @@ import {
 import axios from "axios";
 import { useReactToPrint } from "react-to-print";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -128,7 +129,7 @@ export default function AdminDashboard() {
   // With The Help Of OrderNumber We Assigned Delivery Boy Number
   const handleAssignSubmit = async () => {
     if (!selectedBoy) {
-      alert("Please select a delivery boy!");
+      toast.error("Please select a delivery boy!");
       return;
     }
 
@@ -137,7 +138,7 @@ export default function AdminDashboard() {
         orderNumber: assigningOrder.id,
         deliveryBoyPhone: selectedBoy,
       });
-      alert("Order Assigned Successfully 🚴");
+      toast.success("Order Assigned Successfully 🚴");
       updateOrderStatus(assigningOrder.id, "assigned");
 
       setShowAssignModal(false);
@@ -145,7 +146,7 @@ export default function AdminDashboard() {
       setSelectedBoy("");
       fetchOrders(); // Refresh to see status update
     } catch (err) {
-      alert("Failed to assign order. Please try again.");
+      toast.error("Failed to assign order. Please try again.");
     }
   };
   // console.log(orders);
@@ -169,18 +170,45 @@ export default function AdminDashboard() {
         ...deliveryForm,
         active: "offline",
       });
-      alert("Delivery Boy Created Successfully ✅");
+      toast.success("Delivery Boy Created Successfully");
       setShowDeliveryModal(false);
       setDeliveryForm({ name: "", phone: "", email: "", password: "" });
       fetchDeliveryBoys();
     } catch (err) {
-      alert("Failed to create delivery boy ❌");
+      toast.error("Failed to create delivery boy ❌");
     }
   };
 
   const handleDeliveryChange = (e) => {
     setDeliveryForm({ ...deliveryForm, [e.target.name]: e.target.value });
   };
+
+  const validateDeliveryForm = () => {
+  const { name, phone, email, password } = deliveryForm;
+
+  if (!name || name.trim().length < 3) {
+    toast.error("Enter valid full name (min 3 characters)");
+    return false;
+  }
+
+  if (!/^[0-9]{10}$/.test(phone)) {
+   toast.error("Enter valid 10 digit phone number");
+    return false;
+  }
+
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    toast.error("Enter valid email address");
+    return false;
+  }
+
+  if (!password || password.length < 6) {
+    toast.error("Password must be at least 6 characters");
+    return false;
+  }
+
+  return true;
+};
+
 
   const stats = {
     todayOrders: orders.length,
@@ -1186,7 +1214,14 @@ export default function AdminDashboard() {
               />
             </div>
             <button
-              onClick={createDeliveryBoy}
+              onClick={()=>
+                {
+                  if(validateDeliveryForm())
+                  {
+                  createDeliveryBoy();
+                  }
+
+                }}
               className="w-full mt-6 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition"
             >
               Create Account

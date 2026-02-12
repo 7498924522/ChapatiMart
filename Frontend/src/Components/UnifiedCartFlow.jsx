@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function UnifiedCartFlow() {
   const [step, setStep] = useState(1);
@@ -72,7 +73,7 @@ export default function UnifiedCartFlow() {
  
 
   const handlePayment = async () => {
-    if (!paymentMethod) return alert("Please select payment method");
+    if (!paymentMethod) return toast.error("Please select payment method");
     
     const token = localStorage.getItem("jwtToken");
     console.log(token);
@@ -98,15 +99,11 @@ export default function UnifiedCartFlow() {
       // 1. Place Order in Backend
       if(userEmail != customerInfo.email)
       {
-        alert("Enter the valid Email")
+        toast.error("Enter the valid Email")
         setStep(2);
         return 0;
       }
-      // else if(userEmail == null)
-      // {
-      //   alert("Login First");
-      //   navigate("/login")
-      // }
+      
       const response = await axios.post(
         "http://localhost:8080/api/orders/place",
         orderPayload,
@@ -158,6 +155,39 @@ export default function UnifiedCartFlow() {
   };
 
   
+  const validateAddress = () => {
+    const { name, phone, email,city,pincode,address, } = customerInfo;
+  
+    if (!name || name.trim().length < 3) {
+      toast.error("Enter valid full name ");
+      return false;
+    }
+  
+    if (!/^[0-9]{10}$/.test(phone)) {
+     toast.error("Enter valid 10 digit phone number");
+      return false;
+    }
+  
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error("Enter valid email address");
+      return false;
+    }
+  
+    if (!city || city.trim().length < 3) {
+      toast.error("Enter the city name");
+      return false;
+    }
+    if (!pincode || pincode.length < 3) {
+      toast.error("Enter correct pin");
+      return false;
+    }
+    if (!address || address.trim().length < 3) {
+      toast.error("Enter valid address");
+      return false;
+    }
+  
+    return true;
+  };
   
   
   return (
@@ -220,7 +250,7 @@ export default function UnifiedCartFlow() {
              
               </div>
               <textarea placeholder="Full Address" className="w-full border p-3 rounded-lg" value={customerInfo.address} onChange={(e)=>setCustomerInfo({...customerInfo, address: e.target.value})}/>
-              <button onClick={() => setStep(3)} className="w-full bg-pink-600 text-white py-3 rounded-xl font-bold">Continue to Payment</button>
+              <button onClick={() => {if (validateAddress()){setStep(3)}}} className="w-full bg-pink-600 text-white py-3 rounded-xl font-bold">Continue to Payment</button>
               <button onClick={() => setStep(1)} className="w-full text-gray-500 font-medium">Back</button>
             </div>
           </div>

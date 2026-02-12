@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function DeliveryBoyLogin() {
   const navigate = useNavigate();
@@ -30,12 +31,12 @@ export default function DeliveryBoyLogin() {
       localStorage.getItem("deliveryBoyPhone")
     );
 
-    alert("Login Successful!");
+    toast.success("Login Successful!");
     navigate("/delivery");
 
   } catch (err) {
     console.error("Login Error:", err.response?.data || err.message);
-    alert(err.response?.data || "Login failed");
+    toast.error(err.response?.data || "Login failed");
 
   } finally {
     setLoading(false);

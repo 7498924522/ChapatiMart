@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, User, ArrowRight, ShoppingCart, Eye, EyeOff, Shield, Package } from "lucide-react";
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 export default function Login() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,28 +32,28 @@ console.log(token); // or your key name
       localStorage.setItem("jwtToken", token);
       localStorage.setItem("loggedInUser", loginData.username);
 
-      alert("Login successful!");
+      toast.success("Login successful!");
       navigate(from, { replace: true });
     } else {
-      alert("Login failed: No token received");
+      toast.error("Login failed: No token received");
     }
 
   } catch (error) {
     console.error(error);
-    alert("Login failed: " + (error.response?.data || error.message));
+    toast.error("Login failed: " + (error.response?.data || error.message));
   }
 };
 
   const handleAdminLogin = () => {
     // Navigate to admin login or set admin mode
-    alert('Redirecting to Admin Login...');
-    window.location.href = '/admin';
+    toast.success('Redirecting to Admin Login...');
+   navigate('/admin');
   };
 
   const handleDeliveryLogin = () => {
     // Navigate to delivery login or set delivery mode
-    alert('Redirecting to Delivery Partner Login...');
-    window.location.href = '/delivery_Login';
+    toast.success('Redirecting to Delivery Partner Login...');
+    navigate('/delivery_Login');
   };
 
   return (

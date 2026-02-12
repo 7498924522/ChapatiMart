@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import {
   Package,
@@ -111,7 +112,7 @@ export default function DeliveryDashboard() {
       setActive(newStatus);
       window.localStorage?.setItem("deliveryActive", String(newStatus));
     } catch {
-      alert("Failed to update status");
+      console.log("Failed to update status");
     }
   };
 
@@ -174,6 +175,7 @@ export default function DeliveryDashboard() {
       else
       {
           toast.success("Log Out Successfully !");
+          localStorage.removeItem("deliveryBoyPhone");
           navigate("/");
           
       }

@@ -6,6 +6,7 @@ import H from "../assets/Harabhara.jpg";
 import T from "../assets/toor.jpg";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 
 export default function Wheat() {
@@ -108,7 +109,7 @@ export default function Wheat() {
 
   const handlePlaceOrder = () => {
     if (totalItems === 0) return;
-    alert(`Order placed successfully!\nTotal Items: ${totalItems}\nTotal Amount: ₹${subtotal}`);
+    toast.success(`Order placed successfully!\nTotal Items: ${totalItems}\nTotal Amount: ₹${subtotal}`);
      navigate("/cart")
   };
 

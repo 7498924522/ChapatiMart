@@ -7,6 +7,7 @@ import R from "../assets/rice.jpg";
 import J from "../assets/jwariii.jpg";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 
 export default function Chapati() {
@@ -118,7 +119,7 @@ export default function Chapati() {
 
   const handlePlaceOrder = () => {
     if (totalItems === 0) return;
-    alert(`Order placed successfully!\nTotal Items: ${totalItems}\nTotal Amount: ₹${subtotal}`);
+    toast.success(`Order placed successfully!\nTotal Items: ${totalItems}\nTotal Amount: ₹${subtotal}`);
      navigate("/cart")
   };
 

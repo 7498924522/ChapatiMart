@@ -6,6 +6,7 @@ import H from "../assets/Harabhara.jpg";
 import Header from "./Header";
 import flour from "../assets/F.jpg";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 
 export default function Flour() {
@@ -105,7 +106,7 @@ export default function Flour() {
 
   const handlePlaceOrder = () => {
     if (totalItems === 0) return;
-    alert(`Order placed successfully!\nTotal Items: ${totalItems}\nTotal Amount: ₹${subtotal}`);
+    toast.success(`Order placed successfully!\nTotal Items: ${totalItems}\nTotal Amount: ₹${subtotal}`);
      navigate("/cart")
   };
 
@@ -201,17 +202,6 @@ export default function Flour() {
                       </button>
                     )}
                   </div>
-
-                  {/* <div className="mt-6 bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg">
-                    <h3 className="font-semibold mb-2 text-green-800">
-                      🎉 Coupons & Offers
-                    </h3>
-                    <ul className="text-sm text-gray-700 space-y-1">
-                      <li>✔ Get ₹20 OFF on first order</li>
-                      <li>✔ Free delivery above ₹99</li>
-                      <li>✔ 5% cashback on UPI payment</li>
-                    </ul>
-                  </div> */}
                 </div>
               </div>
             </div>
