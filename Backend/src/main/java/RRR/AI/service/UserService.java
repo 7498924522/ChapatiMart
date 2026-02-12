@@ -30,9 +30,6 @@ public class UserService {
 
     
     
-//     private final String twilioSid ="ACf56a4d039b783ddbb9123338315df174";
-//     private final String twilioAuthToken = "444d3d471d40c9e9d5146eee9d38eea0";
-//     private final String twilioPhoneNumber = "+17754023318";
 
 
 
