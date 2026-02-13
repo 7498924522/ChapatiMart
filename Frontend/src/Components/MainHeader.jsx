@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Menu, X, User } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 function MainHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,9 +21,9 @@ function MainHeader() {
 
         {/* Desktop Links (Hidden on Mobile) */}
         <div className="hidden md:flex items-center gap-8">
-           <a onClick={()=> {alert ("Login First"); navigate("/login")}} className="text-sm cursor-pointer hover:underline font-semibold text-gray-600 hover:text-green-700 transition">Home</a>
+           <a onClick={()=> {toast.error("Login First"); navigate("/login")}} className="text-sm cursor-pointer hover:underline font-semibold text-gray-600 hover:text-green-700 transition">Home</a>
        
-          <a href="#features" className="text-sm hover:underline font-semibold text-gray-600 hover:text-green-700 transition">Features</a>
+          <a href="/adminlogin" className="text-sm hover:underline font-semibold text-gray-600 hover:text-green-700 transition">Admin</a>
           <a href="#about" className="text-sm font-semibold hover:underline text-gray-600 hover:text-green-700 transition">About</a>
           
           <div className="flex items-center gap-4 ml-4">

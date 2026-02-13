@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Minus, Plus, Trash, ShoppingCart } from "lucide-react";
+import { Minus, Plus, Trash, ShoppingCart, ArrowLeft } from "lucide-react";
 import Gahu from "../assets/w.jpg";
 import J from "../assets/jwar.jpg";
 import H from "../assets/Harabhara.jpg";
@@ -123,7 +123,15 @@ export default function Wheat() {
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
+          <button 
+            onClick={() => navigate(-1)}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors "
+          >
+            <ArrowLeft size={22} className="text-gray-700" />
+          </button>
+
+
+      <div className="max-w-6xl mx-auto px-6">
         {/* Breadcrumb */}
         <p className="text-sm text-gray-500 mb-4">
           Home &gt; Wheat &gt; {mainItem.name}

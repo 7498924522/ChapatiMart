@@ -20,8 +20,11 @@ const from = location.state?.from?.pathname || "/home";
     password: "",
   });
 
+   
+
   const handleSubmit = async(e) => {
     e.preventDefault();
+    
     
     // Your existing axios logic would go here
     try {
@@ -46,15 +49,11 @@ console.log(token); // or your key name
 
   } catch (error) {
     console.error(error);
-    toast.error("Login failed: " + (error.response?.data || error.message));
+    toast.error("Login failed Wrong Username Or Password" );
   }
 };
 
-  const handleAdminLogin = () => {
-    // Navigate to admin login or set admin mode
-    toast.success('Redirecting to Admin Login...');
-   navigate('/admin');
-  };
+  
 
   const handleDeliveryLogin = () => {
     // Navigate to delivery login or set delivery mode
@@ -77,42 +76,7 @@ console.log(token); // or your key name
           <p className="text-gray-600 text-base">Fresh groceries delivered to your doorstep</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          
-          {/* Admin Login Card */}
-          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1">
-            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-6 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-4">
-                <Shield className="text-blue-600" size={32} />
-              </div>
-              <h2 className="text-white text-2xl font-bold">Admin Portal</h2>
-              <p className="text-blue-100 text-sm mt-2">Manage your business</p>
-            </div>
-            <div className="p-8">
-              <div className="space-y-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <p className="text-sm text-gray-600">Full dashboard access</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <p className="text-sm text-gray-600">Manage inventory & orders</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <p className="text-sm text-gray-600">Analytics & reports</p>
-                </div>
-              </div>
-              <button
-                onClick={handleAdminLogin}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
-              >
-                Login as Admin
-                <ArrowRight size={20} />
-              </button>
-            </div>
-          </div>
-
+        <div className="grid md:grid-cols-2 gap-6">
           {/* Customer Login Card - Main */}
           <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-green-500">
             <div className="bg-gradient-to-br from-green-600 to-green-700 p-6 text-center relative">

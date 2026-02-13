@@ -16,7 +16,8 @@ import DeliveryBoysList from "./Components/Admin/DeliveryBoysList";
 import DeliveryBoyLogin from "./Components/Delivery/DeliveryBoyLogin";
 import MyOrders from "./Components/MyOrders";
 import ProtectedRoute from "./Components/ProtectedRoute";
-
+import AdminRoute from "./Components/Admin/AdminRoute";
+import AdminLogin from "./Components/Admin/AdminLogin";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -51,8 +52,13 @@ function App() {
             <Route path="/myorders" element={<MyOrders />} />
           </Route>
 
-          {/* Admin Page  */}
-          <Route path="/admin" element={<AdminDashboard />} />
+          
+          <Route path="/admin" element={
+            <AdminRoute>
+            <AdminDashboard />
+            </AdminRoute>}/>
+
+          <Route path="/adminlogin" element={<AdminLogin/>}/>
 
           {/* Delivery Dashboard */}
           <Route path="/delivery" element={<DeliveryDashboard />} />

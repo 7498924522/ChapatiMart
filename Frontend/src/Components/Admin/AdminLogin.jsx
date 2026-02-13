@@ -1,47 +1,34 @@
 import React, { useState } from "react";
-import axios from "axios";
+
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import API_BASE_URL from "@/config/api.js";
+
 
 export default function DeliveryBoyLogin() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ phone: "", password: "" });
-  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ username: "", password: "" });
+  
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  const ADMIN_USER = import.meta.env.VITE_ADMIN_USER;
+  const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS;
   const handleLogin = async (e) => {
   e.preventDefault();
-  setLoading(true);
+  if(form.username == ADMIN_USER && form.password == ADMIN_PASS)
+    {
+      localStorage.setItem("role", "ADMIN");
+      navigate("/admin")
+      toast.success("Login Sucessfully !")
+       return;
 
-  try {
-    const res = await axios.post(
-      `${API_BASE_URL}/admin/deliveryBoy/login`,
-      form
-    );
+    }
+    else
+    {
+        toast.error("Login Failed");
+    }
 
-    console.log("Login Success:", res.data);
 
-    // ✅ Store ONLY phone number
-    localStorage.setItem("deliveryBoyPhone", String(res.data.phone));
-
-    // ✅ Verify storage
-    console.log(
-      "Stored phone:",
-      localStorage.getItem("deliveryBoyPhone")
-    );
-
-    toast.success("Login Successful!");
-    navigate("/delivery");
-
-  } catch (err) {
-    console.error("Login Error:", err.response?.data || err.message);
-    toast.error(err.response?.data || "Login failed");
-
-  } finally {
-    setLoading(false);
-  }
 };
   return (
     
@@ -52,14 +39,14 @@ export default function DeliveryBoyLogin() {
        
       >
        
-          <h2 className="text-2xl font-bold mb-6 text-green-700">DeliveryBoy Login</h2>
+          <h2 className="text-2xl font-bold mb-6 text-green-700">Admin Login</h2>
 
        
         <input
           type="text"
-          name="phone"
-          placeholder="Phone Number"
-          value={form.phone}
+          name="username"
+          placeholder="Username"
+          value={form.username}
           onChange={handleChange}
           className="w-full mb-4 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           required
@@ -77,10 +64,10 @@ export default function DeliveryBoyLogin() {
 
         <button
           type="submit"
-          disabled={loading}
+          
           className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-all font-bold"
         >
-          {loading ? "Logging in..." : "Login"}
+           Login Here
         </button>
        
       </form>

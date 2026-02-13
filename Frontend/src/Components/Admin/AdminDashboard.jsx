@@ -238,12 +238,23 @@ export default function AdminDashboard() {
     return new Date(b.Date) - new Date(a.Date);
   });
 
+   const LogOut=()=>
+    {
+            toast.success("Log Out Successfully !");
+            localStorage.removeItem("role");
+            navigate("/");
+            
+   }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <div className="bg-white/70 text-black p-2 rounded-xl hidden sm:block">
+                            <ArrowLeftToLine onClick={LogOut} className="w-7 h-7" />
+                          </div> 
             <div className="bg-green-700 text-white p-2 rounded-xl">
               <ShoppingCart size={24} />
             </div>
@@ -325,6 +336,12 @@ export default function AdminDashboard() {
             >
               <UserPlus size={18} />
               Add Delivery Boy
+            </span>
+            <span
+              className="hover:underline cursor-pointer flex items-center gap-1 shadow-2xs p-2   text-red-700 font-medium"
+              onClick={LogOut}
+            >
+             Log Out
             </span>
           </div>
         </div>

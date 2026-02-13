@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
   ShoppingCart, Trash, MapPin, CreditCard, CheckCircle, 
-  ArrowRight, Clock, Loader, RefreshCw
+  ArrowRight, Clock, Loader, RefreshCw,
+  ArrowLeft
 } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -211,8 +212,8 @@ export default function UnifiedCartFlow() {
             {cartItems.length === 0 ? (
               <div className="bg-white p-10 rounded-xl text-center shadow">
                <div >Cart is empty</div>
-                <button onClick={() => navigate('/home')} className="mt-6 bg-pink-600 text-white px-8 py-3 rounded-full font-medium shadow-lg shadow-pink-200 hover:bg-pink-700 transition-all">
-              Order Now
+                <button onClick={() => navigate('/home')} className="mt-6 bg-pink-600 text-white px-8 py-3  rounded-full font-medium shadow-lg shadow-pink-200 hover:bg-pink-700 transition-all">
+           Order Now
             </button>
             </div>
             ) : (
@@ -236,6 +237,9 @@ export default function UnifiedCartFlow() {
                 </div>
                 <button onClick={() => setStep(2)} className="w-full bg-pink-600 text-white py-3 rounded-xl mt-6 font-bold flex justify-center items-center gap-2">
                     Checkout <ArrowRight size={18}/>
+                </button>
+                <button onClick={() => navigate(-1)} className="w-full bg-white/30 shadow-xl text-gray-500 py-3 rounded-xl mt-2 font-bold flex justify-center items-center gap-2">
+                    Back 
                 </button>
               </div>
             )}
