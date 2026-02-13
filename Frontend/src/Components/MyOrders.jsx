@@ -6,6 +6,7 @@ import {
   ArrowLeft, RefreshCw, Package, CheckCircle, Clock, Truck, 
   XCircle, PersonStanding, Handshake, CircleCheckBig, Phone, ReceiptText 
 } from "lucide-react";
+import API_BASE_URL from "../config/api";
 
 const MyOrders = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const MyOrders = () => {
     setRefreshing(true);
     try {
       const token = localStorage.getItem("jwtToken");
-      const res = await axios.get("http://localhost:8080/api/orders/my", {
+      const res = await axios.get(`${API_BASE_URL}/api/orders/my`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(res.data);

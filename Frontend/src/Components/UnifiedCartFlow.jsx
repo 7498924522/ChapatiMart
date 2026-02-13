@@ -6,6 +6,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import API_BASE_URL from "../config/api";
 
 export default function UnifiedCartFlow() {
   const [step, setStep] = useState(1);
@@ -105,7 +106,7 @@ export default function UnifiedCartFlow() {
       }
       
       const response = await axios.post(
-        "http://localhost:8080/api/orders/place",
+        `${API_BASE_URL}/api/orders/place`,
         orderPayload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -126,7 +127,7 @@ export default function UnifiedCartFlow() {
         order_id: savedOrder.razorpayId,
         handler: async (payRes) => {
           try {
-            await axios.post("http://localhost:8080/api/orders/verify-payment", {
+            await axios.post(`${API_BASE_URL}/api/orders/verify-payment`, {
               razorpay_order_id: payRes.razorpay_order_id,
               razorpay_payment_id: payRes.razorpay_payment_id,
               razorpay_signature: payRes.razorpay_signature,

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import API_BASE_URL from "../config/api";
 
 export default function DeliveryBoyLogin() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function DeliveryBoyLogin() {
 
   try {
     const res = await axios.post(
-      "http://localhost:8080/admin/deliveryBoy/login",
+      `${API_BASE_URL}/admin/deliveryBoy/login`,
       form
     );
 

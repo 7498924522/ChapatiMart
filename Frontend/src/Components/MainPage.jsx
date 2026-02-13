@@ -10,11 +10,7 @@ export default function MainPage() {
   const [showMenu, setShowMenu] = useState(false); // New state for popup
   const FirstLogin=()=>
   {
-    //  const isOk=window.confirm("Please Login First");
-    //  if(isOk)
-    //  {
-    //     navigate("/login")
-    //  }
+    
 
     setPopUp(true)
   }

@@ -3,6 +3,7 @@ import { Lock, User, ArrowRight, ShoppingCart, Eye, EyeOff, Shield, Package } fr
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from "react-toastify";
+import API_BASE_URL from "../config/api";
 export default function Login() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const from = location.state?.from?.pathname || "/home";
     
     // Your existing axios logic would go here
     try {
-      const res = await axios.post("http://localhost:8080/auth/login", {
+      const res = await axios.post(`${API_BASE_URL}/auth/login`, {
         username: loginData.username,
         password: loginData.password,
       });

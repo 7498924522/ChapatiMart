@@ -1,5 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import API_BASE_URL from "../config/api";
 
 export default function DeliveryBoysList() {
   const [boys, setBoys] = useState([]);
@@ -9,7 +10,7 @@ export default function DeliveryBoysList() {
   // Fetch delivery boys and their orders from backend
   const fetchDeliveryBoys = async () => {
     try {
-      const res = await fetch("http://localhost:8080/admin/delivery-boys");
+      const res = await fetch(`${API_BASE_URL}/admin/delivery-boys`);
       if (!res.ok) throw new Error("Failed to fetch");
       const boysData = await res.json();
 
@@ -18,7 +19,7 @@ export default function DeliveryBoysList() {
         boysData.map(async (boy) => {
           try {
             const ordersRes = await fetch(
-              `http://localhost:8080/admin/delivery/orders/${boy.phone}`
+              `${API_BASE_URL}/admin/delivery/orders/${boy.phone}`
             );
             if (!ordersRes.ok) return { ...boy, orders: [] };
             

@@ -17,6 +17,7 @@ import {
   ArrowLeftFromLine
 } from "lucide-react";
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -36,7 +37,7 @@ export default function DeliveryDashboard() {
   const getOrders = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/admin/delivery/orders/${phone}`
+        `${API_BASE_URL}/admin/delivery/orders/${phone}`
       );
 
         const mappedOrders =res.data.map(order => ({
@@ -86,7 +87,7 @@ export default function DeliveryDashboard() {
 
   const updateOrderStatus = async (orderNumber, newStatus) => {
     try {
-      await axios.put(`http://localhost:8080/api/${orderNumber}/status`, { 
+      await axios.put(`${API_BASE_URL}/api/${orderNumber}/status`, { 
         status: newStatus 
       });
       getOrders();
@@ -107,7 +108,7 @@ export default function DeliveryDashboard() {
     try {
       const newStatus = !active;
       await axios.put(
-        `http://localhost:8080/admin/status?phone=${phone}&active=${newStatus}`
+        `${API_BASE_URL}/admin/status?phone=${phone}&active=${newStatus}`
       );
       setActive(newStatus);
       window.localStorage?.setItem("deliveryActive", String(newStatus));

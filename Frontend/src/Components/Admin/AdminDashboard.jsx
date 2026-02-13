@@ -28,6 +28,7 @@ import {
   X,
 } from "lucide-react";
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 import { useReactToPrint } from "react-to-print";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -72,7 +73,7 @@ export default function AdminDashboard() {
   // Important Thing Is We can See There Status Like Online Or Offline
   const fetchDeliveryBoys = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/admin/delivery-boys");
+      const res = await axios.get(`${API_BASE_URL}/admin/delivery-boys`);
       setDeliveryBoys(res.data);
     } catch (err) {
       console.error("Failed to fetch delivery boys", err);
@@ -82,7 +83,7 @@ export default function AdminDashboard() {
   //Here The Admin Able To Access The All Customer Orders With The Proper Data
   const fetchOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/admin/orders");
+      const res = await axios.get(`${API_BASE_URL}/api/admin/orders`);
       const mappedOrders = res.data.map((order) => ({
         id: order.orderNumber,
         deliveryBoyPhone: order.deliveryBoyPhone,
@@ -134,7 +135,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      await axios.put("http://localhost:8080/api/assign-order", {
+      await axios.put(`${API_BASE_URL}/api/assign-order`, {
         orderNumber: assigningOrder.id,
         deliveryBoyPhone: selectedBoy,
       });
@@ -154,7 +155,7 @@ export default function AdminDashboard() {
   //Here Admin Have The Access To Update The Order Status From Pending To Accept&Preparing ,Ready And Assigned.
   const updateOrderStatus = async (orderNumber, newStatus) => {
     try {
-      await axios.put(`http://localhost:8080/api/${orderNumber}/status`, {
+      await axios.put(`${API_BASE_URL}/api/${orderNumber}/status`, {
         status: newStatus,
       });
       fetchOrders();
@@ -166,7 +167,7 @@ export default function AdminDashboard() {
   //Account Of Delivery Boy
   const createDeliveryBoy = async () => {
     try {
-      await axios.post("http://localhost:8080/admin/delivery-boy", {
+      await axios.post(`${API_BASE_URL}/admin/delivery-boy`, {
         ...deliveryForm,
         active: "offline",
       });
