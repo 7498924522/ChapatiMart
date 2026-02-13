@@ -48,13 +48,16 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+    <groupId>me.paulschwarz</groupId>
+    <artifactId>spring-dotenv</artifactId>
+    <version>4.0.0</version>
+</dependency>
+
+
 
 <!-- Twilio for SMS and The Razorpay for Payment Gateway Api Key -->
-      <dependency>
-    <groupId>com.twilio.sdk</groupId>
-    <artifactId>twilio</artifactId>
-    <version>8.34.0</version>
-      </dependency>
+     
       <dependency>
     <groupId>com.twilio.sdk</groupId>
     <artifactId>twilio</artifactId>
@@ -67,12 +70,7 @@
     <version>1.4.5</version>
 </dependency>
 
-<!-- Read the .env file values -->
-<dependency>
-    <groupId>me.paulschwarz</groupId>
-    <artifactId>spring-dotenv</artifactId>
-    <version>4.0.0</version>
-</dependency>
+
 
 
 <!-- JWT -->
