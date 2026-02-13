@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import API_BASE_URL from "./src/config/api";
+import API_BASE_URL from "./src/config/api.js";
 
 
 

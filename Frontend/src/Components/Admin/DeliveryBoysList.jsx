@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import API_BASE_URL from "./src/config/api";
+import API_BASE_URL from "./src/config/api.js";
 
 
 export default function DeliveryBoysList() {
