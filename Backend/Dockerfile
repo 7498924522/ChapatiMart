@@ -1,15 +1,19 @@
-# Use Java 21 (required — your jar compiled with 21)
+# ---------- BUILD STAGE ----------
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+
+WORKDIR /app
+COPY pom.xml .
+RUN mvn -q -e -DskipTests dependency:go-offline
+
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+
+# ---------- RUN STAGE ----------
 FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 
-# copy project
-COPY . .
-
-# build jar inside container
-RUN chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
-
-# run app
 EXPOSE 8080
-CMD ["java","-jar","target/*.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
