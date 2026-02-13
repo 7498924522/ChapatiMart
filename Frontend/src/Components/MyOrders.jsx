@@ -6,7 +6,8 @@ import {
   ArrowLeft, RefreshCw, Package, CheckCircle, Clock, Truck, 
   XCircle, PersonStanding, Handshake, CircleCheckBig, Phone, ReceiptText 
 } from "lucide-react";
-import API_BASE_URL from "../config/api";
+import API_BASE_URL from "../../config/api";
+
 
 const MyOrders = () => {
   const navigate = useNavigate();

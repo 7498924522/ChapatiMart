@@ -17,7 +17,8 @@ import {
   ArrowLeftFromLine
 } from "lucide-react";
 import axios from "axios";
-import API_BASE_URL from "../config/api";
+import API_BASE_URL from "../../config/api";
+
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 

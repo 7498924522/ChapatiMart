@@ -28,7 +28,7 @@ import {
   X,
 } from "lucide-react";
 import axios from "axios";
-import API_BASE_URL from "../config/api";
+import API_BASE_URL from "../../config/api";
 import { useReactToPrint } from "react-to-print";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
