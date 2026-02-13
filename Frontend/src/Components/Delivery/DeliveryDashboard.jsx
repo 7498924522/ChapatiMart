@@ -17,7 +17,11 @@ import {
   ArrowLeftFromLine
 } from "lucide-react";
 import axios from "axios";
-import API_BASE_URL from "./src/config/api.js";
+import API_BASE_URL from "@/config/api.js";
+
+
+
+
 
 
 import { toast } from "react-toastify";

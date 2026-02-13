@@ -6,7 +6,10 @@ import {
   ArrowLeft, RefreshCw, Package, CheckCircle, Clock, Truck, 
   XCircle, PersonStanding, Handshake, CircleCheckBig, Phone, ReceiptText 
 } from "lucide-react";
-import API_BASE_URL from "./src/config/api.js";
+import API_BASE_URL from "@/config/api.js";
+
+
+
 
 
 

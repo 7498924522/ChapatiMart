@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight, ShoppingCart } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import API_BASE_URL from "./src/config/api.js";
+import API_BASE_URL from "@/config/api.js";
+
+
+
 
 
 

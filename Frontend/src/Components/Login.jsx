@@ -3,7 +3,10 @@ import { Lock, User, ArrowRight, ShoppingCart, Eye, EyeOff, Shield, Package } fr
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from "react-toastify";
-import API_BASE_URL from "./src/config/api.js";
+import API_BASE_URL from "@/config/api.js";
+
+
+
 
 
 export default function Login() {
